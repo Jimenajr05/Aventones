@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Models\Role;
+use App\Models\UserStatus;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -18,9 +20,17 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
-        'name',
+        'nombre',
+        'apellido',
+        'cedula',
+        'fecha_nacimiento',
+        'telefono',
+        'foto',
         'email',
         'password',
+        'role_id',
+        'status_id',
+        'is_super_admin',
     ];
 
     /**
@@ -41,8 +51,17 @@ class User extends Authenticatable
     protected function casts(): array
     {
         return [
-            'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function role()
+    {
+        return $this->belongsTo(Role::class);
+    }
+
+    public function status()
+    {
+        return $this->belongsTo(UserStatus::class, 'status_id');
     }
 }
