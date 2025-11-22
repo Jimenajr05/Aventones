@@ -12,22 +12,26 @@ Route::get('/', function () {
 // Super Admin
 Route::get('/super-admin/dashboard', function () {
     return view('dashboard.superadmin');
-})->middleware(['auth', 'verified'])->name('superadmin.dashboard');
+})->middleware(['auth', 'verified', 'role:1'])
+  ->name('superadmin.dashboard');
 
 // Admin
 Route::get('/admin/dashboard', function () {
     return view('dashboard.admin');
-})->middleware(['auth', 'verified'])->name('admin.dashboard');
+})->middleware(['auth', 'verified', 'role:2'])
+  ->name('admin.dashboard');
 
 // Chofer
 Route::get('/chofer/dashboard', function () {
     return view('dashboard.chofer');
-})->middleware(['auth', 'verified'])->name('chofer.dashboard');
+})->middleware(['auth', 'verified', 'role:3'])
+  ->name('chofer.dashboard');
 
 // Pasajero
 Route::get('/pasajero/dashboard', function () {
     return view('dashboard.pasajero');
-})->middleware(['auth', 'verified'])->name('pasajero.dashboard');
+})->middleware(['auth', 'verified', 'role:4'])
+  ->name('pasajero.dashboard');
 
 // Dashboard general (NO se usará después)
 Route::get('/dashboard', function () {
