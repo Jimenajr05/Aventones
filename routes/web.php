@@ -46,3 +46,19 @@ Route::middleware('auth')->group(function () {
 });
 
 require __DIR__.'/auth.php';
+
+// SOLO SUPER ADMIN
+Route::middleware(['auth', 'role:1'])->group(function () {
+
+    // Lista de usuarios
+    Route::get('/super-admin/users', [\App\Http\Controllers\Admin\UserManagementController::class, 'index'])
+        ->name('administradores.gestionUsuarios');
+
+    // Activar usuario
+    Route::post('/super-admin/users/{id}/activate', [\App\Http\Controllers\Admin\UserManagementController::class, 'activate'])
+        ->name('administradores.gestionUsuarios.activate');
+
+    // Desactivar usuario
+    Route::post('/super-admin/users/{id}/deactivate', [\App\Http\Controllers\Admin\UserManagementController::class, 'deactivate'])
+        ->name('administradores.gestionUsuarios.deactivate');
+});
