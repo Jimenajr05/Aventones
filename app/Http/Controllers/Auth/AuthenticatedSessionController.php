@@ -28,7 +28,27 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        // Redirección según rol
+        $user = Auth::user();
+
+        if ($user->role_id == 1) { // super_admin
+            return redirect()->route('superadmin.dashboard');
+        }
+
+        if ($user->role_id == 2) { // admin
+            return redirect()->route('admin.dashboard');
+        }
+
+        if ($user->role_id == 3) { // chofer
+            return redirect()->route('chofer.dashboard');
+        }
+
+        if ($user->role_id == 4) { // pasajero
+            return redirect()->route('pasajero.dashboard');
+        }
+
+        // fallback
+        return redirect()->route('dashboard');
     }
 
     /**
