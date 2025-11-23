@@ -47,7 +47,7 @@ Route::middleware('auth')->group(function () {
 
 require __DIR__.'/auth.php';
 
-// SOLO SUPER ADMIN
+// Rutas de gestión de usuarios para Super Admin
 Route::middleware(['auth', 'role:1'])->group(function () {
 
     // Lista de usuarios
@@ -62,3 +62,28 @@ Route::middleware(['auth', 'role:1'])->group(function () {
     Route::post('/super-admin/users/{id}/deactivate', [\App\Http\Controllers\Admin\UserManagementController::class, 'deactivate'])
         ->name('administradores.gestionUsuarios.deactivate');
 });
+
+// Activación de cuenta vía token
+Route::get('/activate/{token}', function ($token) {
+
+    // Buscar usuario con el token
+    $user = \App\Models\User::where('activation_token', $token)->first();
+
+    // Si el token no existe o ya fue usado
+    if (!$user) {
+        return redirect('/login')->with(
+            'status',
+            'Este enlace ya fue usado o no es válido.'
+        );
+    }
+
+    // Activar la cuenta
+    $user->status_id = 2; // Activo
+    $user->activation_token = null;
+    $user->save();
+
+    return redirect('/login')->with(
+        'status',
+        'Cuenta activada correctamente. Ya puedes iniciar sesión.'
+    );
+})->name('activate');

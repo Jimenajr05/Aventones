@@ -30,6 +30,7 @@ class User extends Authenticatable
         'password',
         'role_id',
         'status_id',
+        'activation_token', 
         'is_super_admin',
     ];
 

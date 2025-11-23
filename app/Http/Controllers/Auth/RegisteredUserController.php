@@ -7,11 +7,12 @@ use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Illuminate\View\View;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\ActivateAccountMail;
 
 class RegisteredUserController extends Controller
 {
@@ -48,6 +49,7 @@ class RegisteredUserController extends Controller
             $fotoPath = $request->file('foto')->store('fotos_usuarios', 'public');
         }
 
+        // Crear usuario en estado Pendiente con token de activación
         $user = User::create([
             'nombre' => $request->nombre,
             'apellido' => $request->apellido,
@@ -59,14 +61,19 @@ class RegisteredUserController extends Controller
             'password' => Hash::make($request->password),
             'role_id' => $request->role_id,
             'status_id' => 1, // Pendiente
+            'activation_token' => Str::random(60),
             'is_super_admin' => false,
         ]);
 
+        // Enviar correo de activación
+        Mail::to($user->email)->send(new ActivateAccountMail($user));
+
+        // Disparar evento "Registered" (opcional)
         event(new Registered($user));
 
-        Auth::login($user);
-
-        return redirect()->route('login')
-            ->with('status', 'Cuenta creada. Debe ser activada por un administrador.');
+        // No iniciar sesión → usuario pendiente
+        return redirect()
+            ->route('login')
+            ->with('status', 'Cuenta creada. Revise su correo para activar su cuenta.');
     }
 }
