@@ -3,11 +3,11 @@
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+// Página pública principal
+Route::get('/', [\App\Http\Controllers\RidePublicController::class, 'index'])
+    ->name('public.index');
 
-// DASHBOARDS SEGÚN ROL
+// Dashboards según rol
 
 // Super Admin
 Route::get('/super-admin/dashboard', function () {
