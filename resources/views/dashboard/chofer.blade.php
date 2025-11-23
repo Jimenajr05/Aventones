@@ -14,7 +14,14 @@
     <div class="p-6">
         <a href="{{ route('rides.index') }}"
             class="bg-blue-600 text-white px-4 py-2 rounded">
-            🚗 Mis rides
+            🚙 Mis Rides
+        </a>
+    </div>
+
+    <div class="p-6">
+        <a href="{{ route('reservas.chofer') }}"
+            class="bg-blue-600 text-white px-4 py-2 rounded">
+            📩 Reservas Recibidas
         </a>
     </div>
 

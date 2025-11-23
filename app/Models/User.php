@@ -65,4 +65,9 @@ class User extends Authenticatable
     {
         return $this->belongsTo(UserStatus::class, 'status_id');
     }
+
+    public function reservas()
+    {
+        return $this->hasMany(Reserva::class, 'pasajero_id');
+    }
 }

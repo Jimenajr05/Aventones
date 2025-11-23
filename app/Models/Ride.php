@@ -30,4 +30,9 @@ class Ride extends Model
     {
         return $this->belongsTo(Vehiculo::class);
     }
+
+    public function reservas()
+    {
+        return $this->hasMany(Reserva::class);
+    }
 }
