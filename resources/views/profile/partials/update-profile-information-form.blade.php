@@ -1,64 +1,101 @@
 <section>
     <header>
         <h2 class="text-lg font-medium text-gray-900">
-            {{ __('Profile Information') }}
+            {{ __('Información de perfil') }}
         </h2>
 
         <p class="mt-1 text-sm text-gray-600">
-            {{ __("Update your account's profile information and email address.") }}
+            {{ __('Actualiza la información personal de tu cuenta.') }}
         </p>
     </header>
 
+    {{-- Formulario para reenviar verificación --}}
     <form id="send-verification" method="post" action="{{ route('verification.send') }}">
         @csrf
     </form>
 
-    <form method="post" action="{{ route('profile.update') }}" class="mt-6 space-y-6">
+    {{-- FORMULARIO PRINCIPAL --}}
+    <form method="post" action="{{ route('profile.update') }}" enctype="multipart/form-data" class="mt-6 space-y-6">
         @csrf
         @method('patch')
 
+        {{-- Nombre --}}
         <div>
-            <x-input-label for="name" :value="__('Name')" />
-            <x-text-input id="name" name="name" type="text" class="mt-1 block w-full" :value="old('name', $user->name)" required autofocus autocomplete="name" />
-            <x-input-error class="mt-2" :messages="$errors->get('name')" />
+            <x-input-label for="nombre" :value="__('Nombre')" />
+            <x-text-input id="nombre" name="nombre" type="text" class="mt-1 block w-full"
+                :value="old('nombre', $user->nombre)" required autocomplete="given-name" />
+            <x-input-error class="mt-2" :messages="$errors->get('nombre')" />
         </div>
 
+        {{-- Apellido --}}
         <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" name="email" type="email" class="mt-1 block w-full" :value="old('email', $user->email)" required autocomplete="username" />
+            <x-input-label for="apellido" :value="__('Apellido')" />
+            <x-text-input id="apellido" name="apellido" type="text" class="mt-1 block w-full"
+                :value="old('apellido', $user->apellido)" required autocomplete="family-name" />
+            <x-input-error class="mt-2" :messages="$errors->get('apellido')" />
+        </div>
+
+        {{-- Número de cédula (NO editable) --}}
+        <div>
+            <x-input-label for="cedula" :value="__('Número de cédula')" />
+            <x-text-input id="cedula" type="text"
+                class="mt-1 block w-full bg-gray-100 cursor-not-allowed"
+                :value="$user->cedula" disabled />
+            <x-input-error class="mt-2" :messages="$errors->get('cedula')" />
+        </div>
+
+        {{-- Fecha de nacimiento --}}
+        <div>
+            <x-input-label for="fecha_nacimiento" :value="__('Fecha de nacimiento')" />
+            <x-text-input id="fecha_nacimiento" name="fecha_nacimiento" type="date"
+                class="mt-1 block w-full"
+                :value="old('fecha_nacimiento', $user->fecha_nacimiento)" required />
+            <x-input-error class="mt-2" :messages="$errors->get('fecha_nacimiento')" />
+        </div>
+
+        {{-- Teléfono --}}
+        <div>
+            <x-input-label for="telefono" :value="__('Número de teléfono')" />
+            <x-text-input id="telefono" name="telefono" type="text" class="mt-1 block w-full"
+                :value="old('telefono', $user->telefono)" required autocomplete="tel" />
+            <x-input-error class="mt-2" :messages="$errors->get('telefono')" />
+        </div>
+
+        {{-- Correo electrónico (SOLO LECTURA) --}}
+        <div>
+            <x-input-label for="email" :value="__('Correo electrónico')" />
+            <x-text-input id="email" name="email" type="email"
+                class="mt-1 block w-full bg-gray-100 cursor-not-allowed"
+                :value="$user->email" readonly />
             <x-input-error class="mt-2" :messages="$errors->get('email')" />
-
-            @if ($user instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && ! $user->hasVerifiedEmail())
-                <div>
-                    <p class="text-sm mt-2 text-gray-800">
-                        {{ __('Your email address is unverified.') }}
-
-                        <button form="send-verification" class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                            {{ __('Click here to re-send the verification email.') }}
-                        </button>
-                    </p>
-
-                    @if (session('status') === 'verification-link-sent')
-                        <p class="mt-2 font-medium text-sm text-green-600">
-                            {{ __('A new verification link has been sent to your email address.') }}
-                        </p>
-                    @endif
-                </div>
-            @endif
         </div>
 
+        {{-- Fotografía actual --}}
+        @if(Auth::user()->foto)
+            <img src="{{ asset('storage/' . Auth::user()->foto) }}" class="w-24 h-24 rounded-full border mb-4">
+        @endif
+
+        {{-- Subir nueva fotografía --}}
+        <div>
+            <x-input-label for="foto" :value="__('Fotografía personal')" />
+            <input id="foto" name="foto" type="file" class="mt-1 block w-full text-sm">
+            <x-input-error :messages="$errors->get('foto')" class="mt-2" />
+        </div>
+
+        {{-- Botón final --}}
         <div class="flex items-center gap-4">
-            <x-primary-button>{{ __('Save') }}</x-primary-button>
+            <x-primary-button>{{ __('Guardar cambios') }}</x-primary-button>
 
             @if (session('status') === 'profile-updated')
-                <p
-                    x-data="{ show: true }"
-                    x-show="show"
-                    x-transition
-                    x-init="setTimeout(() => show = false, 2000)"
-                    class="text-sm text-gray-600"
-                >{{ __('Saved.') }}</p>
+                <p x-data="{ show: true }"
+                   x-show="show"
+                   x-transition
+                   x-init="setTimeout(() => show = false, 2000)"
+                   class="text-sm text-gray-600">
+                    {{ __('Guardado.') }}
+                </p>
             @endif
         </div>
+
     </form>
 </section>
