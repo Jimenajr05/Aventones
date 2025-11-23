@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\VehiculoController;
+
 
 // Página pública principal
 Route::get('/', [\App\Http\Controllers\RidePublicController::class, 'index'])
@@ -87,3 +89,11 @@ Route::get('/activate/{token}', function ($token) {
         'Cuenta activada correctamente. Ya puedes iniciar sesión.'
     );
 })->name('activate');
+
+
+// Rutas de gestión de vehículos para Choferes
+Route::middleware(['auth', 'role:3'])->group(function () {
+    Route::get('/vehiculos', [\App\Http\Controllers\VehiculoController::class, 'index'])->name('vehiculos.index');
+    Route::post('/vehiculos', [\App\Http\Controllers\VehiculoController::class, 'store'])->name('vehiculos.store');
+    Route::delete('/vehiculos/{vehiculo}', [\App\Http\Controllers\VehiculoController::class, 'destroy'])->name('vehiculos.destroy');
+});
