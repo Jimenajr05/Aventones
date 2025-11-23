@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\VehiculoController;
+use App\Http\Controllers\RideController;
 
 
 // Página pública principal
@@ -91,9 +92,18 @@ Route::get('/activate/{token}', function ($token) {
 })->name('activate');
 
 
-// Rutas de gestión de vehículos para Choferes
+
+// RUTAS DE CHOFER (role:3)
 Route::middleware(['auth', 'role:3'])->group(function () {
+
+    // VEHÍCULOS
     Route::get('/vehiculos', [\App\Http\Controllers\VehiculoController::class, 'index'])->name('vehiculos.index');
     Route::post('/vehiculos', [\App\Http\Controllers\VehiculoController::class, 'store'])->name('vehiculos.store');
     Route::delete('/vehiculos/{vehiculo}', [\App\Http\Controllers\VehiculoController::class, 'destroy'])->name('vehiculos.destroy');
+
+    // RIDES
+    Route::get('/rides', [RideController::class, 'index'])->name('rides.index');
+    Route::post('/rides', [RideController::class, 'store'])->name('rides.store');
+    Route::patch('/rides/{ride}', [RideController::class, 'update'])->name('rides.update');
+    Route::delete('/rides/{ride}', [RideController::class, 'destroy'])->name('rides.destroy');
 });

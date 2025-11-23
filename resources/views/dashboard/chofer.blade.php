@@ -11,4 +11,11 @@
         </a>
     </div>
 
+    <div class="p-6">
+        <a href="{{ route('rides.index') }}"
+            class="bg-blue-600 text-white px-4 py-2 rounded">
+            🚗 Mis rides
+        </a>
+    </div>
+
 </x-app-layout>
