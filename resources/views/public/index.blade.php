@@ -1,98 +1,157 @@
-<x-guest-layout>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aventones</title>
 
-    <div class="max-w-5xl mx-auto mt-10 p-6 bg-white rounded-xl shadow">
-
-        <p class="text-center text-gray-700 mb-4">
-            Con Aventones puedes compartir viajes de manera cómoda, económica y segura.
-        </p>
-
-        <h1 class="text-3xl font-bold text-center mb-8">
-            Buscar Rides Disponibles
-        </h1>
-
-        <!-- Formulario de búsqueda -->
-        <form method="GET" class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-
-            <div>
-                <label class="font-semibold">Origen:</label>
-                <input type="text" name="origen" value="{{ request('origen') }}"
-                       placeholder="Ej: San Carlos"
-                       class="mt-1 w-full border rounded p-2">
-            </div>
-
-            <div>
-                <label class="font-semibold">Destino:</label>
-                <input type="text" name="destino" value="{{ request('destino') }}"
-                       placeholder="Ej: Alajuela"
-                       class="mt-1 w-full border rounded p-2">
-            </div>
-
-            <div class="flex gap-2 items-end">
-                <button class="bg-blue-600 text-white px-4 py-2 rounded w-full">
-                    Buscar
-                </button>
-                <a href="{{ route('public.index') }}"
-                   class="bg-green-600 text-white px-4 py-2 rounded w-full text-center">
-                    Limpiar
-                </a>
-            </div>
-        </form>
-
-        <!-- Mensaje de Alerta -->
-        <div class="w-full bg-red-100 text-red-700 border border-red-300 p-3 mb-4 rounded text-center font-medium">
-            ❌ Solo se permiten ubicaciones dentro de <strong>Alajuela</strong>
-        </div>
-
-        <!-- Mapa -->
-        <div id="map" style="height: 350px;" class="rounded mb-8"></div>
-
-        <!-- Resultados -->
-        <h2 class="font-bold text-lg mb-2">Resultados:</h2>
-
-        @if ($rides->isEmpty())
-            <div class="text-center text-gray-600 py-6">
-                🚗 No se encontraron rides disponibles con esos criterios.
-            </div>
-
-            <div class="flex justify-center gap-4 mt-4">
-                <a href="/login" class="bg-blue-600 text-white px-4 py-2 rounded">Iniciar Sesión</a>
-                <a href="/register" class="bg-green-600 text-white px-4 py-2 rounded">Registrarse</a>
-            </div>
-
-            <div class="text-center mt-6 text-sm">
-                <strong>¿Eres administrador?</strong>
-                <p class="text-gray-600">Accede con tus credenciales asignadas.</p>
-                <a href="/super-admin/dashboard" class="text-blue-600 underline">
-                    Ir al panel administrativo
-                </a>
-            </div>
-
-        @else
-            <ul class="space-y-3">
-                @foreach ($rides as $ride)
-                    <li class="p-4 border rounded bg-gray-50">
-                        <strong>{{ $ride->nombre }}</strong><br>
-                        Origen: {{ $ride->origen }}<br>
-                        Destino: {{ $ride->destino }}<br>
-                        Fecha: {{ $ride->fecha }} Hora: {{ $ride->hora }}<br>
-                        Costo: ₡{{ $ride->costo }} / espacio
-                    </li>
-                @endforeach
-            </ul>
-        @endif
-
-    </div>
+    <!-- Tu CSS original -->
+    <link rel="stylesheet" href="{{ asset('css/index.css') }}">
 
     <!-- Leaflet -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+<body>
 
+    <!-- CONTENEDOR PRINCIPAL -->
+    <main class="container">
+
+        <section class="intro">
+            <p>Con Aventones puedes compartir viajes de manera cómoda, económica y segura.</p>
+        </section>
+
+        <!-- BUSCADOR -->
+        <section class="busqueda">
+            <h2>Buscar Rides Disponibles</h2>
+
+            <form method="GET" action="{{ route('public.index') }}" class="form-busqueda">
+                <div class="campo">
+                    <label>Origen:</label>
+                    <input type="text" name="origen" value="{{ request('origen') }}" placeholder="Ej: San Carlos">
+                </div>
+
+                <div class="campo">
+                    <label>Destino:</label>
+                    <input type="text" name="destino" value="{{ request('destino') }}" placeholder="Ej: Alajuela">
+                </div>
+
+                <div class="acciones-form">
+                    <button class="btn">Buscar</button>
+                    <button type="button" class="btn btn-secundario"
+                            onclick="window.location.href='{{ route('public.index') }}'">Limpiar</button>
+                </div>
+            </form>
+
+            <!-- MAPA -->
+            <div id="map-hint">🗺️ Selecciona en el mapa <b>origen</b> y <b>destino</b> dentro de Alajuela.</div>
+            <div id="map"></div>
+
+            <!-- RESULTADOS -->
+            <h3>Resultados:</h3>
+
+            @if ($rides->isEmpty())
+                <p class="no-resultados">🚗 No se encontraron rides disponibles con esos criterios.</p>
+            @else
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Origen</th>
+                                <th>Destino</th>
+                                <th>Fecha</th>
+                                <th>Hora</th>
+                                <th>Vehículo</th>
+                                <th>Costo</th>
+                                <th>Espacios</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @foreach ($rides as $ride)
+                                <tr>
+                                    <td>{{ $ride->nombre }}</td>
+                                    <td>{{ $ride->origen }}</td>
+                                    <td>{{ $ride->destino }}</td>
+                                    <td>{{ $ride->fecha }}</td>
+                                    <td>{{ $ride->hora }}</td>
+                                    <td>{{ $ride->vehiculo }}</td>
+                                    <td>₡{{ number_format($ride->costo, 2) }}</td>
+                                    <td>{{ $ride->espacios }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            @endif
+
+        </section>
+
+        <!-- BOTONES LOGIN/REGISTRO -->
+        <section class="acciones">
+            <a href="{{ route('login') }}" class="btn">Iniciar Sesión</a>
+            <a href="{{ route('register') }}" class="btn btn-secundario">Registrarse</a>
+        </section>
+
+        <!-- ADMIN -->
+        <section class="info-admin">
+            <h3>¿Eres administrador?</h3>
+            <p>Accede con tus credenciales asignadas.</p>
+            <a href="/super-admin/dashboard" class="link-admin">Ir al panel administrativo</a>
+        </section>
+
+    </main>
+
+    <!-- SCRIPT MAPA -->
     <script>
-        let map = L.map('map').setView([10.01625, -84.21163], 9);
+        const map = L.map('map').setView([10.01625, -84.21163], 9);
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19,
+            maxZoom: 19
         }).addTo(map);
+
+        let mInicio = null, mFin = null;
+        let paso = "origen";
+        const hint = document.getElementById("map-hint");
+
+        function esAlajuela(txt) {
+            return txt.toLowerCase().includes("alajuela");
+        }
+
+        async function reverse(lat, lng) {
+            const r = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`);
+            const d = await r.json();
+            return d.display_name || `${lat}, ${lng}`;
+        }
+
+        map.on("click", async e => {
+            const { lat, lng } = e.latlng;
+            const dir = await reverse(lat, lng);
+
+            if (!esAlajuela(dir)) {
+                hint.classList.add("map-error");
+                hint.innerHTML = "❌ Solo se permiten ubicaciones dentro de <b>Alajuela</b>";
+                return;
+            } else {
+                hint.classList.remove("map-error");
+            }
+
+            if (paso === "origen") {
+                if (mInicio) map.removeLayer(mInicio);
+                mInicio = L.marker([lat, lng]).addTo(map).bindPopup("📍 Origen").openPopup();
+                document.querySelector("[name='origen']").value = dir;
+                paso = "destino";
+                hint.innerHTML = "📍 Ahora selecciona el <b>destino</b>.";
+            } else {
+                if (mFin) map.removeLayer(mFin);
+                mFin = L.marker([lat, lng]).addTo(map).bindPopup("🏁 Destino").openPopup();
+                document.querySelector("[name='destino']").value = dir;
+                paso = "origen";
+                hint.innerHTML = "✅ Ubicaciones listas. Haz clic en buscar.";
+            }
+        });
     </script>
 
-</x-guest-layout>
+</body>
+</html>
