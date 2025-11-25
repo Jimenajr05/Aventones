@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('modelo');
             $table->string('placa')->unique();
             $table->string('color');
-            $table->integer('anno');
+            $table->integer('anio');
             $table->integer('capacidad')->default(4);
             $table->string('fotografia')->nullable();
             $table->timestamps();

@@ -13,9 +13,11 @@
         $roleButtons = [
             1 => [
                 ['label' => 'Gestión de Usuarios', 'route' => 'administradores.gestionUsuarios'],
+                ['label' => 'Registrar Admin', 'route' => 'admin.create']
             ],
             2 => [
                 ['label' => 'Gestión de Usuarios', 'route' => 'administradores.gestionUsuarios'],
+                 ['label' => 'Registrar Admin', 'route' => 'admin.create']
             ],
             3 => [
                 ['label' => 'Mis Vehículos', 'route' => 'vehiculos.index'],

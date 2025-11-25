@@ -5,39 +5,50 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\VehiculoController;
 use App\Http\Controllers\RideController;
-use App\Http\Controllers\ReservaController; 
+use App\Http\Controllers\ReservaController;
+use App\Http\Controllers\Admin\UserManagementController;
+use App\Http\Controllers\RidePublicController;
 
-// Página pública principal
-Route::get('/', [\App\Http\Controllers\RidePublicController::class, 'index'])
+//
+// ---------------------------------------------------------
+// PÁGINA PÚBLICA
+// ---------------------------------------------------------
+Route::get('/', [RidePublicController::class, 'index'])
     ->name('public.index');
 
-// Dashboards según rol
 
-// Super Admin
-Route::get('/super-admin/dashboard', function () {
-    return view('dashboard.superadmin');
-})->middleware(['auth', 'verified', 'role:1'])
-  ->name('superadmin.dashboard');
+//
+// ---------------------------------------------------------
+// DASHBOARDS POR ROL
+// ---------------------------------------------------------
+Route::middleware(['auth', 'verified'])->group(function () {
 
-// Admin
-Route::get('/admin/dashboard', function () {
-    return view('dashboard.admin');
-})->middleware(['auth', 'verified', 'role:2'])
-  ->name('admin.dashboard');
+    // SUPER ADMIN (role:1)
+    Route::get('/super-admin/dashboard', function () {
+        return view('dashboard.superadmin');
+    })->middleware('role:1')->name('superadmin.dashboard');
 
-// Chofer
-Route::get('/chofer/dashboard', function () {
-    return view('dashboard.chofer');
-})->middleware(['auth', 'verified', 'role:3'])
-  ->name('chofer.dashboard');
+    // ADMIN (role:2)
+    Route::get('/admin/dashboard', function () {
+        return view('dashboard.admin');
+    })->middleware('role:2')->name('admin.dashboard');
 
-// Pasajero
-Route::get('/pasajero/dashboard', function () {
-    return view('dashboard.pasajero');
-})->middleware(['auth', 'verified', 'role:4'])
-  ->name('pasajero.dashboard');
+    // CHOFER (role:3)
+    Route::get('/chofer/dashboard', function () {
+        return view('dashboard.chofer');
+    })->middleware('role:3')->name('chofer.dashboard');
 
-// Perfil
+    // PASAJERO (role:4)
+    Route::get('/pasajero/dashboard', function () {
+        return view('dashboard.pasajero');
+    })->middleware('role:4')->name('pasajero.dashboard');
+});
+
+
+//
+// ---------------------------------------------------------
+// PERFIL DE USUARIO
+// ---------------------------------------------------------
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -46,20 +57,28 @@ Route::middleware('auth')->group(function () {
 
 require __DIR__.'/auth.php';
 
-// SUPER ADMIN
+
+//
+// ---------------------------------------------------------
+// SUPER ADMIN — GESTIÓN COMPLETA DE USUARIOS
+// ---------------------------------------------------------
 Route::middleware(['auth', 'role:1'])->group(function () {
 
-    Route::get('/super-admin/users', [\App\Http\Controllers\Admin\UserManagementController::class, 'index'])
+    Route::get('/super-admin/users', [UserManagementController::class, 'index'])
         ->name('administradores.gestionUsuarios');
 
-    Route::post('/super-admin/users/{id}/activate', [\App\Http\Controllers\Admin\UserManagementController::class, 'activate'])
+    Route::post('/super-admin/users/{id}/activate', [UserManagementController::class, 'activate'])
         ->name('administradores.gestionUsuarios.activate');
 
-    Route::post('/super-admin/users/{id}/deactivate', [\App\Http\Controllers\Admin\UserManagementController::class, 'deactivate'])
+    Route::post('/super-admin/users/{id}/deactivate', [UserManagementController::class, 'deactivate'])
         ->name('administradores.gestionUsuarios.deactivate');
 });
 
-// Activación de cuenta
+
+//
+// ---------------------------------------------------------
+// ACTIVACIÓN DE CUENTA POR TOKEN
+// ---------------------------------------------------------
 Route::get('/activate/{token}', function ($token) {
 
     $user = \App\Models\User::where('activation_token', $token)->first();
@@ -72,16 +91,20 @@ Route::get('/activate/{token}', function ($token) {
     $user->activation_token = null;
     $user->save();
 
-    return redirect('/login')
-        ->with('status', 'Cuenta activada correctamente. Ya puedes iniciar sesión.');
+    return redirect('/login')->with('status', 'Cuenta activada correctamente. Ya puedes iniciar sesión.');
 })->name('activate');
 
-// CHOFER (Vehículos y Rides)
+
+//
+// ---------------------------------------------------------
+// CHOFER (role:3) — Vehículos & Rides
+// ---------------------------------------------------------
 Route::middleware(['auth', 'role:3'])->group(function () {
 
     // VEHÍCULOS
     Route::get('/vehiculos', [VehiculoController::class, 'index'])->name('vehiculos.index');
     Route::post('/vehiculos', [VehiculoController::class, 'store'])->name('vehiculos.store');
+    Route::patch('/vehiculos/{vehiculo}', [VehiculoController::class, 'update'])->name('vehiculos.update');   // 🔥 AGREGADO
     Route::delete('/vehiculos/{vehiculo}', [VehiculoController::class, 'destroy'])->name('vehiculos.destroy');
 
     // RIDES
@@ -91,24 +114,47 @@ Route::middleware(['auth', 'role:3'])->group(function () {
     Route::delete('/rides/{ride}', [RideController::class, 'destroy'])->name('rides.destroy');
 });
 
-// PASAJERO — Crear/Cancelar reserva
+
+//
+// ---------------------------------------------------------
+// PASAJERO (role:4) — Reservas
+// ---------------------------------------------------------
 Route::middleware(['auth','role:4'])->group(function() {
     Route::post('/reservas', [ReservaController::class, 'store'])->name('reservas.store');
-    Route::post('/reservas/{reserva}/cancelar', [ReservaController::class, 'cancelar'])->name('reservas.cancelar');
-});
+    Route::post('/reservas/{reserva}/cancelar', [ReservaController::class, 'cancelar'])
+        ->name('reservas.cancelar');
 
-// CHOFER — Aceptar/Rechazar reserva
-Route::middleware(['auth','role:3'])->group(function() {
-    Route::post('/reservas/{reserva}/aceptar', [ReservaController::class, 'aceptar'])->name('reservas.aceptar');
-    Route::post('/reservas/{reserva}/rechazar', [ReservaController::class, 'rechazar'])->name('reservas.rechazar');
-});
-// Vista de reservas para CHOFER
-Route::middleware(['auth','role:3'])->get('/reservas/chofer', 
-    [\App\Http\Controllers\ReservaController::class, 'vistaChofer']
-)->name('reservas.chofer');
-
-Route::middleware(['auth','role:4'])->group(function() {
     Route::get('/mis-reservas', [ReservaController::class, 'vistaPasajero'])
         ->name('reservas.pasajero');
 });
 
+
+//
+// ---------------------------------------------------------
+// CHOFER (role:3) — Reservas recibidas
+// ---------------------------------------------------------
+Route::middleware(['auth','role:3'])->group(function() {
+    Route::post('/reservas/{reserva}/aceptar', [ReservaController::class, 'aceptar'])
+        ->name('reservas.aceptar');
+
+    Route::post('/reservas/{reserva}/rechazar', [ReservaController::class, 'rechazar'])
+        ->name('reservas.rechazar');
+
+    Route::get('/reservas/chofer', [ReservaController::class, 'vistaChofer'])
+        ->name('reservas.chofer');
+});
+
+
+//
+// ---------------------------------------------------------
+// REGISTRAR ADMIN (SuperAdmin y Admin) — roles 1 y 2
+// ---------------------------------------------------------
+Route::middleware(['auth', 'role:1,2'])->group(function () {
+
+    Route::get('/admin/crear', [UserManagementController::class, 'createAdmin'])
+        ->name('admin.create');
+
+    Route::post('/admin/crear', [UserManagementController::class, 'storeAdmin'])
+        ->name('admin.store');
+
+});

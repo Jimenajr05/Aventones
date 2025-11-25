@@ -5,56 +5,99 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 
 class UserManagementController extends Controller
 {
-    // Mostrar lista de usuarios
+    // Mostrar la lista completa de usuarios
     public function index()
     {
         $users = User::orderBy('role_id')->get();
         return view('administradores.gestionUsuarios.index', compact('users'));
     }
 
-    // Activar usuario
+    //  REGISTRAR NUEVO ADMIN (rol_id = 1)
+    public function createAdmin()
+    {
+        return view('administradores.gestionUsuarios.registroAdmin');
+    }
+
+    public function storeAdmin(Request $request)
+    {
+        $request->validate([
+            'nombre' => 'required|string|max:255',
+            'apellido' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'cedula' => 'required|string|max:20|unique:users,cedula',
+            'fecha_nacimiento' => 'required|date',
+            'telefono' => 'required|string|max:20',
+            'foto' => 'nullable|image|max:2048',
+            'password' => 'required|min:6|confirmed',
+        ]);
+
+        // Subir foto
+        $rutaFoto = null;
+        if ($request->hasFile('foto')) {
+            $rutaFoto = $request->file('foto')->store('fotos_admins', 'public');
+        }
+
+        // Crear siempre ADMIN (role_id = 1)
+        User::create([
+            'nombre' => $request->nombre,
+            'apellido' => $request->apellido,
+            'email' => $request->email,
+            'cedula' => $request->cedula,
+            'fecha_nacimiento' => $request->fecha_nacimiento,
+            'telefono' => $request->telefono,
+            'foto' => $rutaFoto,
+            'role_id' => 1,      // 🔥 ADMIN FIJO
+            'status_id' => 2,    // Activo
+            'password' => Hash::make($request->password),
+        ]);
+
+        return redirect()->back()->with('success', 'Administrador creado correctamente.');
+    }
+
+    //  ACTIVAR USUARIO
     public function activate($id)
     {
-        $auth = auth()->user();   // El usuario que está intentando activar
-        $user = User::findOrFail($id); // El usuario a activar
+        $auth = auth()->user();   
+        $user = User::findOrFail($id); 
 
-        // Nadie puede modificar al Super Admin
-        if ($user->is_super_admin) {
+        // Nadie puede tocar al Super Admin
+        if ($user->role_id == 1 && $user->is_super_admin) {
             return back()->withErrors(['error' => 'No puedes modificar al Super Admin.']);
         }
 
-        // Un admin NO puede activarse a sí mismo
+        // No puede cambiarse a sí mismo
         if ($auth->id === $user->id) {
-            return back()->withErrors(['error' => 'No puedes modific tu propio estado.']);
+            return back()->withErrors(['error' => 'No puedes modificar tu propio estado.']);
         }
 
-        // Admin puede activar otros admins
+        // Activar usuario
         $user->status_id = 2; // Activo
         $user->save();
 
         return back()->with('success', 'Usuario activado correctamente.');
     }
 
-    // Desactivar usuario
+    //  DESACTIVAR USUARIO
     public function deactivate($id)
     {
-        $auth = auth()->user();   // el que ejecuta la acción
-        $user = User::findOrFail($id); // el que será desactivado
+        $auth = auth()->user();
+        $user = User::findOrFail($id);
 
         // Nadie puede tocar al Super Admin
-        if ($user->is_super_admin) {
+        if ($user->role_id == 1 && $user->is_super_admin) {
             return back()->withErrors(['error' => 'No puedes desactivar al Super Admin.']);
         }
 
-        // Un admin NO puede desactivarse a sí mismo
+        // No puede desactivarse a sí mismo
         if ($auth->id === $user->id) {
             return back()->withErrors(['error' => 'No puedes cambiar tu propio estado.']);
         }
 
-        // Admin puede desactivar otros admins
+        // Desactivar usuario
         $user->status_id = 3; // Inactivo
         $user->save();
 

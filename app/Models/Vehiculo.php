@@ -12,7 +12,7 @@ class Vehiculo extends Model
         'modelo',
         'placa',
         'color',
-        'anno',
+        'anio',
         'capacidad',
         'fotografia',
     ];

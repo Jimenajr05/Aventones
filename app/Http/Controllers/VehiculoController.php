@@ -35,7 +35,7 @@ class VehiculoController extends Controller
             'modelo'    => 'required|string|max:50',
             'placa'     => 'required|string|max:20|unique:vehiculos,placa',
             'color'     => 'required|string',
-            'anno'      => 'required|integer|min:2010|max:2030',
+            'anio'      => 'required|integer|min:2010|max:2030',
             'capacidad' => 'required|integer|min:1|max:5',
             'fotografia'=> 'nullable|image|max:2048',
         ]);
@@ -62,7 +62,7 @@ class VehiculoController extends Controller
             'modelo'    => $request->modelo,
             'placa'     => $request->placa,
             'color'     => $request->color,
-            'anno'      => $request->anno,
+            'anio'      => $request->anio,
             'capacidad' => $request->capacidad,
             'fotografia'=> $rutaFoto,
         ]);
@@ -91,5 +91,40 @@ class VehiculoController extends Controller
 
         return redirect()->route('vehiculos.index')
             ->with('success', 'Vehículo eliminado correctamente.');
+    }
+
+    public function update(Request $request, Vehiculo $vehiculo)
+    {
+        // Validaciones
+        $request->validate([
+            'marca'     => 'required|string|max:50',
+            'modelo'    => 'required|string|max:50',
+            'placa'     => "required|string|max:20|unique:vehiculos,placa,{$vehiculo->id}",
+            'color'     => 'required|string',
+            'anio'      => 'required|integer|min:2010|max:2030',
+            'capacidad' => 'required|integer|min:1|max:5',
+            'fotografia'=> 'nullable|image|max:2048',
+        ]);
+
+        // Actualizar foto
+        if ($request->hasFile('fotografia')) {
+            if ($vehiculo->fotografia) {
+                Storage::disk('public')->delete($vehiculo->fotografia);
+            }
+
+            $vehiculo->fotografia = $request->file('fotografia')->store('vehiculos', 'public');
+        }
+
+        // Actualizar campos
+        $vehiculo->update([
+            'marca'     => $request->marca,
+            'modelo'    => $request->modelo,
+            'placa'     => $request->placa,
+            'color'     => $request->color,
+            'anio'      => $request->anio,
+            'capacidad' => $request->capacidad,
+        ]);
+
+        return back()->with('success', 'Vehículo actualizado correctamente.');
     }
 }

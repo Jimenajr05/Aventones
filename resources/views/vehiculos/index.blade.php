@@ -59,8 +59,8 @@
 
                     <div>
                         <label class="font-semibold">Año:</label>
-                        <input type="number" name="anno" min="2010" max="2030"
-                               value="{{ old('anno') }}"
+                        <input type="number" name="anio" min="2010" max="2030"
+                               value="{{ old('anio') }}"
                                class="w-full border p-2 rounded" required>
                         <small class="text-gray-500">Solo vehículos del 2010 en adelante.</small>
                     </div>
@@ -126,7 +126,7 @@
                                     <td class="p-2">{{ $vehiculo->modelo }}</td>
                                     <td class="p-2">{{ $vehiculo->placa }}</td>
                                     <td class="p-2">{{ $vehiculo->color }}</td>
-                                    <td class="p-2">{{ $vehiculo->anno }}</td>
+                                    <td class="p-2">{{ $vehiculo->anio }}</td>
                                     <td class="p-2">{{ $vehiculo->capacidad }}</td>
 
                                     <td class="p-2">
@@ -201,7 +201,7 @@
 
                     <div>
                         <label>Año:</label>
-                        <input type="number" id="edit_anno" name="anno" min="2010" max="2030"
+                        <input type="number" id="edit_anio" name="anio" min="2010" max="2030"
                                class="w-full border p-2 rounded" required>
                     </div>
 
@@ -239,7 +239,7 @@
             document.getElementById('edit_modelo').value = vehiculo.modelo;
             document.getElementById('edit_placa').value = vehiculo.placa;
             document.getElementById('edit_color').value = vehiculo.color;
-            document.getElementById('edit_anno').value = vehiculo.anno;
+            document.getElementById('edit_anio').value = vehiculo.anio;
             document.getElementById('edit_capacidad').value = vehiculo.capacidad;
 
             document.getElementById('editForm').action =

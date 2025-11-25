@@ -51,7 +51,7 @@
             <h3>Resultados:</h3>
 
             @if ($rides->isEmpty())
-                <p class="no-resultados">🚗 No se encontraron rides disponibles con esos criterios.</p>
+                <p class="no-resultados">🚗 No se encontraron rides disponibles.</p>
             @else
                 <div class="table-container">
                     <table>
