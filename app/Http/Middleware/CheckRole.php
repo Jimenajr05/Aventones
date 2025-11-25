@@ -5,28 +5,39 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Symfony\Component\HttpFoundation\Response;
 
 class CheckRole
 {
-    /**
-     * Handle an incoming request.
-     *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
-     */
     public function handle(Request $request, Closure $next, ...$roles)
     {
         $user = Auth::user();
 
-        // Si no hay usuario, continuar flujo normal (será bloqueado por 'auth')
         if (!$user) {
-            return $next($request);
+            return redirect()->route('login');
         }
 
-        // Si el rol del usuario NO está en la lista permitida
+        // Si el rol NO está permitido en esta ruta
         if (!in_array($user->role_id, $roles)) {
-            return redirect()->route('dashboard')
-                ->withErrors(['access' => 'No tienes permiso para acceder a esta sección.']);
+
+            // Redirigir al dashboard correcto según rol_id
+            switch ($user->role_id) {
+
+                case 1:
+                    return redirect()->route('superadmin.dashboard')
+                        ->withErrors(['access' => 'No tienes permiso para acceder a esta sección.']);
+
+                case 2:
+                    return redirect()->route('admin.dashboard')
+                        ->withErrors(['access' => 'No tienes permiso para acceder a esta sección.']);
+
+                case 3:
+                    return redirect()->route('chofer.dashboard')
+                        ->withErrors(['access' => 'No tienes permiso para acceder a esta sección.']);
+
+                case 4:
+                    return redirect()->route('pasajero.dashboard')
+                        ->withErrors(['access' => 'No tienes permiso para acceder a esta sección.']);
+            }
         }
 
         return $next($request);

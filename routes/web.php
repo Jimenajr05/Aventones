@@ -37,11 +37,6 @@ Route::get('/pasajero/dashboard', function () {
 })->middleware(['auth', 'verified', 'role:4'])
   ->name('pasajero.dashboard');
 
-// Dashboard general
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
-
 // Perfil
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
