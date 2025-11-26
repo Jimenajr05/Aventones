@@ -59,13 +59,6 @@ class RideController extends Controller
                 ->withInput();
         }
 
-        // Validar año del vehículo (>= 2010) como en el proyecto 1
-        if ($vehiculo->anno < 2010) {
-            return back()
-                ->withErrors('Este vehículo no cumple el año mínimo (2010).')
-                ->withInput();
-        }
-
         // Validar espacios vs capacidad del vehículo
         if ($request->espacios > $vehiculo->capacidad) {
             return back()
