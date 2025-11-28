@@ -26,10 +26,11 @@
                 <h2 class="text-[#0B3D2E] mb-2 text-xl font-semibold">🚗 Mis Vehículos</h2>
                 <p class="text-[#555] text-base mb-5">Administra los vehículos que usarás para tus rides.</p>
                 
-                <a href="{{ route('pasajero.buscar_rides') }}" 
-                class="inline-block py-2 px-5 rounded-full no-underline 
+                <a href="{{ route('vehiculos.index') }}" 
+                   class="inline-block py-2 px-5 rounded-full no-underline 
                         text-white font-semibold 
-                        bg-blue-700 transition duration-300 hover:bg-blue-700"> Ver Vehículos
+                        bg-blue-700 transition duration-300 hover:bg-blue-700">
+                    Ver Vehículos
                 </a>
             </div>
 
