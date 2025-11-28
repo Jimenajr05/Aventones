@@ -68,7 +68,7 @@
                     <div>
                         <label class="font-semibold">Capacidad:</label>
                         <input type="number" name="capacidad" min="1" max="5"
-                               value="{{ old('capacidad', 4) }}"
+                               value="{{ old('capacidad') }}"
                                class="w-full border p-2 rounded" required>
                     </div>
 
