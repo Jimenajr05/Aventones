@@ -5,26 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aventones</title>
 
-    <!-- Tu CSS original -->
     <link rel="stylesheet" href="{{ asset('css/index.css') }}">
 
-    <!-- Leaflet -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 <body>
 
-    <!-- CONTENEDOR PRINCIPAL -->
     <main class="container">
 
         <section class="intro">
             <p>Con Aventones puedes compartir viajes de manera cómoda, económica y segura.</p>
         </section>
 
-        <!-- BUSCADOR -->
         <section class="busqueda">
             <h2>Buscar Rides Disponibles</h2>
 
+            {{-- La acción del formulario es correcta para la vista pública --}}
             <form method="GET" action="{{ route('public.index') }}" class="form-busqueda">
                 <div class="campo">
                     <label>Origen:</label>
@@ -43,11 +40,9 @@
                 </div>
             </form>
 
-            <!-- MAPA -->
             <div id="map-hint">🗺️ Selecciona en el mapa <b>origen</b> y <b>destino</b> dentro de Alajuela.</div>
             <div id="map"></div>
 
-            <!-- RESULTADOS -->
             <h3>Resultados:</h3>
 
             @if ($rides->isEmpty())
@@ -76,8 +71,12 @@
                                     <td>{{ $ride->destino }}</td>
                                     <td>{{ $ride->fecha }}</td>
                                     <td>{{ $ride->hora }}</td>
-                                    <td>{{ $ride->vehiculo }}</td>
-                                    <td>₡{{ number_format($ride->costo, 2) }}</td>
+                                    {{-- Acceder a marca y modelo del objeto vehículo --}}
+                                    <td>{{ $ride->vehiculo->marca ?? 'N/A' }} {{ $ride->vehiculo->modelo ?? '' }}</td>
+                                    
+                                    {{-- Usar el campo de costo correcto --}}
+                                    <td>₡{{ number_format($ride->costo_por_espacio ?? 0, 2) }}</td>
+                                    
                                     <td>{{ $ride->espacios }}</td>
                                 </tr>
                             @endforeach
@@ -88,22 +87,36 @@
 
         </section>
 
-        <!-- BOTONES LOGIN/REGISTRO -->
-        <section class="acciones">
-            <a href="{{ route('login') }}" class="btn">Iniciar Sesión</a>
-            <a href="{{ route('register') }}" class="btn btn-secundario">Registrarse</a>
-        </section>
+        {{-- Muestra Iniciar Sesión/Registrarse solo si NO está logueado (@guest) --}}
+        @guest
+            <section class="acciones">
+                <a href="{{ route('login') }}" class="btn">Iniciar Sesión</a>
+                <a href="{{ route('register') }}" class="btn btn-secundario">Registrarse</a>
+            </section>
+        @endguest
+        
+        {{-- Muestra el mensaje y botón de Panel si está logueado (@auth) y lo centra --}}
+        @auth
+            <section class="acciones">
+                <p style="margin-bottom: 10px; font-weight: 600;">¡Hola, {{ Auth::user()->nombre }}! Ya estás en sesión.</p>
+                {{-- Se envuelve el botón en un div para forzar el centrado como bloque --}}
+                <div style="text-align: center;">
+                    <a href="{{ route('pasajero.dashboard') }}" class="btn" style="display: inline-block;">Ir a mi Panel Principal</a>
+                </div>
+            </section>
+        @endauth
 
-        <!-- ADMIN -->
-        <section class="info-admin">
-            <h3>¿Eres administrador?</h3>
-            <p>Accede con tus credenciales asignadas.</p>
-            <a href="/super-admin/dashboard" class="link-admin">Ir al panel administrativo</a>
-        </section>
+        {{-- Muestra la sección Admin solo si NO está logueado (@guest) --}}
+        @guest
+            <section class="info-admin">
+                <h3>¿Eres administrador?</h3>
+                <p>Accede con tus credenciales asignadas.</p>
+                <a href="/super-admin/dashboard" class="link-admin">Ir al panel administrativo</a>
+            </section>
+        @endguest
 
     </main>
 
-    <!-- SCRIPT MAPA -->
     <script>
         const map = L.map('map').setView([10.01625, -84.21163], 9);
 

@@ -7,6 +7,8 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Storage; // ¡Agregado!
+use Illuminate\Support\Str; // ¡Agregado!
 use Illuminate\View\View;
 
 class ProfileController extends Controller
@@ -30,25 +32,27 @@ class ProfileController extends Controller
     {
         $user = $request->user();
 
-        // Si cambia el email, poner status pendiente nuevamente (opcional)
-        if ($user->email !== $request->email) {
+        // 1. Actualizar datos permitidos (nombre, apellido, teléfono, etc.)
+        $user->fill($request->validated());
+
+        // 2. Si el email fue modificado, poner status pendiente nuevamente.
+        if ($user->isDirty('email')) {
             $user->status_id = 1; // Pendiente
             $user->activation_token = Str::random(60);
         }
 
-        // Subir foto si viene nueva
+        // 3. Subir y asignar la foto si viene una nueva. ESTA PARTE VA DESPUÉS DE fill()
         if ($request->hasFile('foto')) {
-            // borrar foto vieja si existe
-            if ($user->foto) {
+            // borrar foto vieja si existe, y asegurarnos de que no sea la ruta temporal
+            if ($user->foto && !str_contains($user->foto, 'xampp')) {
                 Storage::disk('public')->delete($user->foto);
             }
 
+            // Guardar la nueva foto y asignar la ruta de Storage (ej: fotos_usuarios/...)
             $user->foto = $request->file('foto')->store('fotos_usuarios', 'public');
         }
 
-        // Actualizar datos permitidos
-        $user->fill($request->validated());
-
+        // 4. Guardar los cambios finales en la base de datos
         $user->save();
 
         return back()->with('status', 'Perfil actualizado correctamente.');

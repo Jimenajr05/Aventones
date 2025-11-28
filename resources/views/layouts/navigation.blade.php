@@ -25,21 +25,20 @@
                 ['label' => 'Reservas Recibidas', 'route' => 'reservas.chofer'],
             ],
             4 => [
-                ['label' => 'Buscar Rides', 'route' => 'public.index'],
+                ['label' => 'Buscar Rides', 'route' => 'pasajero.buscar_rides'],
                 ['label' => 'Mis Reservas', 'route' => 'reservas.pasajero'],
             ],
         ];
     @endphp
 
 
-    <!-- CONTENEDOR PRINCIPAL -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
 
-            <!-- IZQUIERDA: Panel + Botones -->
+
             <div class="hidden sm:flex sm:items-center space-x-8">
 
-                <!-- PANEL PRINCIPAL -->
+
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                     <x-nav-link :href="route($dashboardRoute)"
                         :active="request()->routeIs($dashboardRoute)">
@@ -47,7 +46,7 @@
                     </x-nav-link>
                 </div>
 
-                <!-- BOTONES DINÁMICOS (estilo Jetstream) -->
+
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                     @foreach ($roleButtons[Auth::user()->role_id] ?? [] as $btn)
                         <x-nav-link :href="route($btn['route'])"
@@ -59,22 +58,23 @@
 
             </div>
 
-            <!-- DERECHA: Bienvenida + Foto + Ajustes -->
+
             <div class="hidden sm:flex sm:items-center sm:space-x-6">
 
-                <!-- Bienvenida + Foto -->
+
                 <div class="flex items-center space-x-4">
                     <span class="text-gray-700 text-md">
                         Bienvenido, <strong>{{ Auth::user()->nombre }}</strong>
                     </span>
 
+                    {{-- ¡RUTA CORREGIDA AQUÍ! --}}
                     <img src="{{ Auth::user()->foto 
-                        ? asset('storage/foto_usuarios/' . Auth::user()->foto) 
-                        : asset('images/default-user.png') }}"
-                        class="w-12 h-12 rounded-full object-cover border shadow">
+                    ? asset('storage/' . Auth::user()->foto) // <- ¡Ruta corregida!
+                    : asset('images/default-user.png') }}"
+                    class="w-10 h-10 rounded-full object-cover border shadow">
                 </div>
 
-                <!-- Ajustes -->
+
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">
                         <button class="p-2 rounded hover:bg-gray-100 transition">
@@ -102,7 +102,7 @@
                 </x-dropdown>
             </div>
 
-            <!-- HAMBUERGUESA (MÓVIL) -->
+
             <div class="-me-2 flex items-center sm:hidden">
                 <button @click="open = ! open"
                     class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 
@@ -121,16 +121,16 @@
         </div>
     </div>
 
-    <!-- MENU RESPONSIVE -->
+
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
 
-        <!-- PANEL PRINCIPAL -->
+
         <x-responsive-nav-link :href="route($dashboardRoute)"
             :active="request()->routeIs($dashboardRoute)">
             Panel Principal
         </x-responsive-nav-link>
 
-        <!-- BOTONES DINÁMICOS RESPONSIVE -->
+
         @foreach ($roleButtons[Auth::user()->role_id] ?? [] as $btn)
             <x-responsive-nav-link :href="route($btn['route'])"
                 :active="request()->routeIs($btn['route'])">
@@ -138,7 +138,7 @@
             </x-responsive-nav-link>
         @endforeach
 
-        <!-- USUARIO -->
+        
         <div class="pt-4 pb-1 border-t border-gray-200">
             <div class="px-4">
                 <div class="font-medium text-base text-gray-800">

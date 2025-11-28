@@ -8,6 +8,7 @@ use App\Http\Controllers\RideController;
 use App\Http\Controllers\ReservaController;
 use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\RidePublicController;
+use App\Http\Controllers\BuscarRideController;
 
 //
 // ---------------------------------------------------------
@@ -120,6 +121,11 @@ Route::middleware(['auth', 'role:3'])->group(function () {
 // PASAJERO (role:4) — Reservas
 // ---------------------------------------------------------
 Route::middleware(['auth','role:4'])->group(function() {
+    // RUTA DE BUSQUEDA PROTEGIDA PARA PASAJEROS
+    // Usa el mismo controlador para la vista buscarRides.blade.php
+    Route::get('buscarRides/buscarRides', [BuscarRideController::class, 'vistaBuscar'])
+        ->name('pasajero.buscar_rides');
+
     Route::post('/reservas', [ReservaController::class, 'store'])->name('reservas.store');
     Route::post('/reservas/{reserva}/cancelar', [ReservaController::class, 'cancelar'])
         ->name('reservas.cancelar');

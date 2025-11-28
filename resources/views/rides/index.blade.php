@@ -23,44 +23,43 @@
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
 
-            {{-- FORMULARIO PARA CREAR/EDITAR --}}
+            {{-- FORMULARIO PARA CREAR --}}
             <div class="p-6 bg-white rounded-lg shadow">
-                
-                <h3 id="form-title" class="text-xl font-bold mb-4">Crear nuevo ride</h3>
 
-                <form id="rideForm" action="{{ route('rides.store') }}" method="POST" class="space-y-4">
+                <h3 class="text-xl font-bold mb-4">Crear nuevo ride</h3>
+
+                {{-- Aquí mantenemos solo la lógica de CREACIÓN --}}
+                <form action="{{ route('rides.store') }}" method="POST" class="space-y-4">
                     @csrf
-
-                    <input type="hidden" id="edit_id" name="ride_id">
 
                     <div>
                         <label class="font-semibold">Nombre del ride:</label>
-                        <input type="text" id="nombre" name="nombre"
+                        <input type="text" name="nombre" value="{{ old('nombre') }}"
                             class="w-full border p-2 rounded" required>
                     </div>
 
                     <div>
                         <label class="font-semibold">Lugar de salida:</label>
-                        <input type="text" id="origen" name="origen"
+                        <input type="text" name="origen" value="{{ old('origen') }}"
                             class="w-full border p-2 rounded" required>
                     </div>
 
                     <div>
                         <label class="font-semibold">Lugar de llegada:</label>
-                        <input type="text" id="destino" name="destino"
+                        <input type="text" name="destino" value="{{ old('destino') }}"
                             class="w-full border p-2 rounded" required>
                     </div>
 
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <label class="font-semibold">Fecha:</label>
-                            <input type="date" id="fecha" name="fecha"
+                            <input type="date" name="fecha" value="{{ old('fecha') }}"
                                    class="w-full border p-2 rounded" required>
                         </div>
 
                         <div>
                             <label class="font-semibold">Hora:</label>
-                            <input type="time" id="hora" name="hora"
+                            <input type="time" name="hora" value="{{ old('hora') }}"
                                    class="w-full border p-2 rounded" required>
                         </div>
                     </div>
@@ -68,47 +67,42 @@
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <label class="font-semibold">Costo por espacio (₡):</label>
-                            <input type="number" step="0.01" id="costo_por_espacio" name="costo_por_espacio"
+                            <input type="number" step="0.01" name="costo_por_espacio" value="{{ old('costo_por_espacio') }}"
                                    class="w-full border p-2 rounded" required>
                         </div>
 
                         <div>
                             <label class="font-semibold">Cantidad de espacios:</label>
-                            <input type="number" id="espacios" name="espacios" min="1" max="5"
+                            {{-- CAMBIO APLICADO: Se quita el valor por defecto ', 4' de old() --}}
+                            <input type="number" name="espacios" min="1" max="5" value="{{ old('espacios') }}"
                                    class="w-full border p-2 rounded" required>
                         </div>
                     </div>
 
                     <div>
                         <label class="font-semibold">Vehículo asociado:</label>
-                        <select id="vehiculo_id" name="vehiculo_id" class="w-full border p-2 rounded" required>
+                        <select name="vehiculo_id" class="w-full border p-2 rounded" required>
                             <option value="">Seleccione un vehículo...</option>
                             @foreach ($vehiculos as $vehiculo)
-                                <option value="{{ $vehiculo->id }}">
+                                <option value="{{ $vehiculo->id }}"
+                                    {{ old('vehiculo_id') == $vehiculo->id ? 'selected' : '' }}>
                                     {{ $vehiculo->marca }} {{ $vehiculo->modelo }} ({{ $vehiculo->placa }})
                                 </option>
                             @endforeach
                         </select>
                     </div>
 
-                    <div class="flex gap-3 mt-4">
-                        <button id="submitButton" type="submit"
+                    <div class="mt-4">
+                        <button type="submit"
                             class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded">
                             🚙 Crear ride
-                        </button>
-
-                        {{-- Botón cancelar edición --}}
-                        <button type="button" id="cancelEditBtn"
-                            class="hidden bg-gray-400 hover:bg-gray-500 text-white font-semibold px-4 py-2 rounded"
-                            onclick="resetForm()">
-                            Cancelar
                         </button>
                     </div>
 
                 </form>
             </div>
 
-            {{-- TABLA --}}
+            {{-- TABLA DE RIDES --}}
             <div class="p-6 bg-white rounded-lg shadow">
                 <h3 class="text-xl font-bold mb-4">Mis Rides</h3>
 
@@ -145,14 +139,14 @@
                                         <td class="p-2">{{ $ride->espacios }}</td>
 
                                         <td class="p-2">
-                                            {{-- EDITAR --}}
-                                            <button onclick="editRide({{ $ride }})"
-                                                class="text-blue-600 hover:underline block mb-2">
+                                            {{-- LLAMADA AL MODAL --}}
+                                            <a href="#" onclick="openEditModal({{ json_encode($ride) }})"
+                                               class="text-blue-600 hover:underline block mb-2">
                                                 ✏️ Editar
-                                            </button>
+                                            </a>
 
                                             {{-- ELIMINAR --}}
-                                            <form action="{{ route('rides.destroy', $ride) }}" 
+                                            <form action="{{ route('rides.destroy', $ride) }}"
                                                   method="POST"
                                                   onsubmit="return confirm('¿Eliminar este ride?')">
                                                 @csrf
@@ -174,33 +168,119 @@
         </div>
     </div>
 
-    {{-- SCRIPT PARA EDITAR --}}
+    <div id="editRideModal"
+         class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+
+        <div class="bg-white p-6 rounded-lg w-full max-w-xl">
+            <h3 class="text-xl font-bold mb-4">Editar Ride</h3>
+
+            <form id="editRideForm" method="POST" class="space-y-4">
+                @csrf
+                @method('PATCH')
+
+                {{-- Campos del Ride --}}
+                <div>
+                    <label class="font-semibold">Nombre del ride:</label>
+                    <input type="text" id="edit_nombre" name="nombre" class="w-full border p-2 rounded" required>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="font-semibold">Origen:</label>
+                        <input type="text" id="edit_origen" name="origen" class="w-full border p-2 rounded" required>
+                    </div>
+
+                    <div>
+                        <label class="font-semibold">Destino:</label>
+                        <input type="text" id="edit_destino" name="destino" class="w-full border p-2 rounded" required>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="font-semibold">Fecha:</label>
+                        <input type="date" id="edit_fecha" name="fecha" class="w-full border p-2 rounded" required>
+                    </div>
+
+                    <div>
+                        <label class="font-semibold">Hora:</label>
+                        <input type="time" id="edit_hora" name="hora" class="w-full border p-2 rounded" required>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="font-semibold">Costo por espacio (₡):</label>
+                        <input type="number" step="0.01" id="edit_costo_por_espacio" name="costo_por_espacio"
+                               class="w-full border p-2 rounded" required>
+                    </div>
+
+                    <div>
+                        <label class="font-semibold">Cantidad de espacios:</label>
+                        <input type="number" id="edit_espacios" name="espacios" min="1" max="5"
+                               class="w-full border p-2 rounded" required>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="font-semibold">Vehículo asociado:</label>
+                    <select id="edit_vehiculo_id" name="vehiculo_id" class="w-full border p-2 rounded" required>
+                        <option value="">Seleccione un vehículo...</option>
+                        @foreach ($vehiculos as $vehiculo)
+                            <option value="{{ $vehiculo->id }}">
+                                {{ $vehiculo->marca }} {{ $vehiculo->modelo }} ({{ $vehiculo->placa }})
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                {{-- Fin Campos del Ride --}}
+
+
+                <div class="flex justify-end gap-3 mt-6">
+                    <button type="button" onclick="closeEditModal()"
+                            class="px-4 py-2 bg-gray-300 rounded">Cancelar</button>
+
+                    <button class="px-4 py-2 bg-blue-600 text-white rounded">
+                        Actualizar
+                    </button>
+                </div>
+
+            </form>
+        </div>
+
+    </div>
+
     <script>
-        function editRide(ride) {
-            document.getElementById("form-title").innerText = "Editar Ride";
-            document.getElementById("submitButton").innerText = "Guardar cambios";
+        function openEditModal(ride) {
+            // Rellena los campos del modal
+            document.getElementById('edit_nombre').value = ride.nombre;
+            document.getElementById('edit_origen').value = ride.origen;
+            document.getElementById('edit_destino').value = ride.destino;
+            document.getElementById('edit_fecha').value = ride.fecha;
 
-            document.getElementById("edit_id").value = ride.id;
-            document.getElementById("rideForm").action = "/rides/" + ride.id;
+            // CORRECCIÓN para la hora: elimina los segundos (HH:MM:SS -> HH:MM)
+            if (ride.hora && ride.hora.length > 5) {
+                document.getElementById("edit_hora").value = ride.hora.substring(0, 5);
+            } else {
+                document.getElementById("edit_hora").value = ride.hora;
+            }
 
-            document.getElementById("nombre").value = ride.nombre;
-            document.getElementById("origen").value = ride.origen;
-            document.getElementById("destino").value = ride.destino;
-            document.getElementById("fecha").value = ride.fecha;
-            document.getElementById("hora").value = ride.hora;
-            document.getElementById("costo_por_espacio").value = ride.costo_por_espacio;
-            document.getElementById("espacios").value = ride.espacios;
-            document.getElementById("vehiculo_id").value = ride.vehiculo_id;
+            document.getElementById('edit_costo_por_espacio').value = ride.costo_por_espacio;
+            document.getElementById('edit_espacios').value = ride.espacios;
+            document.getElementById('edit_vehiculo_id').value = ride.vehiculo_id;
 
-            document.getElementById("rideForm").insertAdjacentHTML("beforeend",
-                `<input type="hidden" name="_method" value="PATCH">`
-            );
+            // Establece la acción del formulario
+            document.getElementById('editRideForm').action = '/rides/' + ride.id;
 
-            document.getElementById("cancelEditBtn").classList.remove("hidden");
+            // Muestra el modal
+            document.getElementById('editRideModal').classList.remove('hidden');
+            document.getElementById('editRideModal').classList.add('flex');
         }
 
-        function resetForm() {
-            location.reload();
+        function closeEditModal() {
+            // Oculta el modal
+            document.getElementById('editRideModal').classList.add('hidden');
+            document.getElementById('editRideModal').classList.remove('flex');
         }
     </script>
 

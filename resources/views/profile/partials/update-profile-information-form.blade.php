@@ -70,10 +70,12 @@
             <x-input-error class="mt-2" :messages="$errors->get('email')" />
         </div>
 
-        {{-- Fotografía actual --}}
+        {{-- Fotografía actual (CORREGIDA CON ESTILO EN LÍNEA FORZADO) --}}
         @if(Auth::user()->foto)
-            <img src="{{ asset('storage/' . Auth::user()->foto) }}" class="w-24 h-24 rounded-full border mb-4">
+            <img src="{{ asset('storage/' . Auth::user()->foto) }}" 
+                class="w-24 h-24 rounded-full border shadow object-cover mb-4">
         @endif
+
 
         {{-- Subir nueva fotografía --}}
         <div>

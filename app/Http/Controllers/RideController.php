@@ -37,12 +37,13 @@ class RideController extends Controller
     {
         $user = Auth::user();
 
+        // VALIDACIÓN: Volvemos a H:i, que es el formato exacto del input type="time"
         $request->validate([
             'nombre'           => 'required|string|max:100',
             'origen'           => 'required|string|max:100',
             'destino'          => 'required|string|max:100',
             'fecha'            => 'required|date',
-            'hora'             => 'required|date_format:H:i',
+            'hora'             => 'required|date_format:H:i', // Espera 09:30 o 14:45
             'vehiculo_id'      => 'required|exists:vehiculos,id',
             'costo_por_espacio'=> 'required|numeric|min:0',
             'espacios'         => 'required|integer|min:1|max:5',
@@ -66,10 +67,13 @@ class RideController extends Controller
                 ->withInput();
         }
 
-        // ====== VALIDACIÓN DE COSTO (ideas proyecto 1) ======
+        // ====== PRE-PROCESAMIENTO Y VALIDACIÓN DE COSTO ======
         $costo = (float) $request->costo_por_espacio;
         $fecha = Carbon::parse($request->fecha);
-        $hora  = $request->hora;
+        
+        // Formateamos la hora para asegurar H:i y los cálculos
+        $carbon_hora = Carbon::createFromFormat('H:i', $request->hora);
+        $hora_formateada  = $carbon_hora->format('H:i');
 
         // Base
         $min = 500;
@@ -80,7 +84,7 @@ class RideController extends Controller
         }
 
         // Horario nocturno: 22:00 – 05:59
-        $h = (int) substr($hora, 0, 2);
+        $h = $carbon_hora->hour; // Obtenemos la hora entera directamente del objeto Carbon
         if ($h >= 22 || $h <= 5) {
             $min = max($min, 800);
         }
@@ -97,11 +101,11 @@ class RideController extends Controller
                 ->withInput();
         }
 
-        // ====== VALIDAR RIDE DUPLICADO (mismo chofer, vehículo, fecha y hora) ======
+        // ====== VALIDAR RIDE DUPLICADO ======
         $existe = Ride::where('user_id', $user->id)
             ->where('vehiculo_id', $request->vehiculo_id)
             ->where('fecha', $request->fecha)
-            ->where('hora', $request->hora)
+            ->where('hora', $hora_formateada) // Usamos la hora formateada
             ->exists();
 
         if ($existe) {
@@ -118,7 +122,7 @@ class RideController extends Controller
             'origen'           => $request->origen,
             'destino'          => $request->destino,
             'fecha'            => $request->fecha,
-            'hora'             => $request->hora,
+            'hora'             => $hora_formateada, // Guardamos la hora formateada
             'costo_por_espacio'=> $costo,
             'espacios'         => $request->espacios,
         ]);
@@ -146,12 +150,13 @@ class RideController extends Controller
             return back()->withErrors('No tienes permiso para editar este ride.');
         }
 
+        // VALIDACIÓN: Volvemos a H:i, que es el formato exacto del input type="time"
         $request->validate([
             'nombre'           => 'required|string|max:100',
             'origen'           => 'required|string|max:100',
             'destino'          => 'required|string|max:100',
             'fecha'            => 'required|date',
-            'hora'             => 'required|date_format:H:i',
+            'hora'             => 'required|date_format:H:i', 
             'vehiculo_id'      => 'required|exists:vehiculos,id',
             'costo_por_espacio'=> 'required|numeric|min:0',
             'espacios'         => 'required|integer|min:1|max:5',
@@ -168,11 +173,6 @@ class RideController extends Controller
             return back()->withErrors('El vehículo no es válido para este usuario.');
         }
 
-        // Año mínimo
-        if ($vehiculo->anno < 2010) {
-            return back()->withErrors('El vehículo no cumple el año mínimo (2010).');
-        }
-
         // Capacidad
         if ($request->espacios > $vehiculo->capacidad) {
             return back()->withErrors("La capacidad máxima del vehículo es {$vehiculo->capacidad}.");
@@ -182,10 +182,14 @@ class RideController extends Controller
         $costo = $request->costo_por_espacio;
         $minimo = 500;
         $fecha = \Carbon\Carbon::parse($request->fecha);
-        $hora  = intval(substr($request->hora, 0, 2));
+        
+        // Formateamos la hora para asegurar H:i y los cálculos
+        $carbon_hora = Carbon::createFromFormat('H:i', $request->hora);
+        $hora_formateada  = $carbon_hora->format('H:i');
+        $h = $carbon_hora->hour; // Obtenemos la hora entera directamente del objeto Carbon
 
         if ($fecha->isWeekend()) $minimo = max($minimo, 700);
-        if ($hora >= 22 || $hora <= 5) $minimo = max($minimo, 800);
+        if ($h >= 22 || $h <= 5) $minimo = max($minimo, 800); 
 
         if ($costo < $minimo) {
             return back()->withErrors("El costo mínimo permitido es ₡{$minimo}.");
@@ -199,13 +203,14 @@ class RideController extends Controller
         $claveCambiada =
             $request->vehiculo_id != $ride->vehiculo_id ||
             $request->fecha       != $ride->fecha       ||
-            $request->hora        != $ride->hora;
+            // Comparamos el valor formateado con el valor de la base de datos
+            $hora_formateada      != $ride->hora;
 
         if ($claveCambiada) {
             $duplicado = Ride::where('user_id', $user->id)
                 ->where('vehiculo_id', $request->vehiculo_id)
                 ->where('fecha', $request->fecha)
-                ->where('hora', $request->hora)
+                ->where('hora', $hora_formateada) // Usamos el valor formateado para la consulta
                 ->where('id', '!=', $ride->id)
                 ->exists();
 
@@ -214,8 +219,11 @@ class RideController extends Controller
             }
         }
 
-        // ACTUALIZAR
-        $ride->update($request->all());
+        // ACTUALIZAR (usamos request->except y sobreescribimos 'hora' con el formato H:i)
+        $datos = $request->except(['_method', '_token']); 
+        $datos['hora'] = $hora_formateada; // Sobreescribimos con el formato H:i
+
+        $ride->update($datos);
 
         return redirect()->route('rides.index')->with('success', 'Ride actualizado correctamente.');
     }

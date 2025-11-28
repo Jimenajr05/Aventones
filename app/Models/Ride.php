@@ -28,11 +28,18 @@ class Ride extends Model
 
     public function vehiculo()
     {
-        return $this->belongsTo(Vehiculo::class);
+        return $this->belongsTo(Vehiculo::class, 'vehiculo_id');
     }
 
     public function reservas()
     {
         return $this->hasMany(Reserva::class);
     }
+
+    public function user()
+    {
+        // Asumiendo que la clave foránea es 'user_id'
+        return $this->belongsTo(User::class, 'user_id'); 
+    }
+    
 }

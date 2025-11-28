@@ -1,12 +1,7 @@
 <x-app-layout>
-
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            Buscar Rides Disponibles
-        </h2>
-    </x-slot>
-
-    <div class="py-10 max-w-6xl mx-auto">
+    
+    {{-- CONTENEDOR PRINCIPAL: Centrado y con ancho limitado --}}
+    <div class="py-10 max-w-7xl mx-auto sm:px-6 lg:px-8">
 
         {{-- Mensajes --}}
         @if (session('success'))
@@ -15,115 +10,200 @@
             </div>
         @endif
 
-        {{-- BUSCADOR --}}
-        <form method="GET" action="{{ route('public.index') }}" class="mb-6 bg-white p-4 rounded shadow">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                    <label>Origen:</label>
-                    <input type="text" name="origen" class="w-full border p-2 rounded">
-                </div>
-
-                <div>
-                    <label>Destino:</label>
-                    <input type="text" name="destino" class="w-full border p-2 rounded">
-                </div>
-
-                <div class="flex items-end">
-                    <button class="bg-blue-600 text-white px-4 py-2 rounded w-full">
-                        🔍 Buscar
-                    </button>
-                </div>
+        @if ($errors->any())
+            <div class="mb-4 bg-red-100 text-red-700 p-3 rounded">
+                {{ $errors->first() }}
             </div>
-        </form>
-
-        {{-- LISTA DE RIDES --}}
-        <div class="bg-white p-6 rounded shadow">
-            <h3 class="text-xl font-semibold mb-4">Rides disponibles</h3>
-
-            @if ($rides->isEmpty())
-                <p class="text-gray-600">No hay rides con esos filtros.</p>
-            @else
-                <table class="w-full border-collapse">
-                    <thead>
-                        <tr class="bg-gray-200">
-                            <th class="p-2">Origen</th>
-                            <th class="p-2">Destino</th>
-                            <th class="p-2">Fecha</th>
-                            <th class="p-2">Hora</th>
-                            <th class="p-2">Costo</th>
-                            <th class="p-2">Espacios</th>
-                            <th class="p-2">Acción</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($rides as $ride)
-                            <tr class="border-b">
-                                <td class="p-2">{{ $ride->origen }}</td>
-                                <td class="p-2">{{ $ride->destino }}</td>
-                                <td class="p-2">{{ $ride->fecha }}</td>
-                                <td class="p-2">{{ $ride->hora }}</td>
-                                <td class="p-2">₡{{ number_format($ride->costo_por_espacio, 2) }}</td>
-                                <td class="p-2">{{ $ride->espacios }}</td>
-                                <td class="p-2">
-                                    <form action="{{ route('reservas.store') }}" method="POST">
-                                        @csrf
-                                        <input type="hidden" name="ride_id" value="{{ $ride->id }}">
-                                        <button class="bg-green-600 text-white px-3 py-1 rounded">
-                                            Reservar
-                                        </button>
-                                    </form>
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            @endif
-        </div>
-
-        {{-- HISTORIAL --}}
-        <div class="mt-10 bg-white p-6 rounded shadow">
+        @endif
+    
+        {{-- ========================================================== --}}
+        {{-- 1. MIS RESERVAS (Activas: Pendientes y Aceptadas) --}}
+        {{-- ========================================================== --}}
+        <div class="bg-white p-6 rounded shadow mb-8">
             <h3 class="text-xl font-semibold mb-4">Mis reservas</h3>
 
             @if ($misReservas->isEmpty())
-                <p class="text-gray-600">No tienes reservas realizadas.</p>
+                <p class="text-gray-600">No tienes reservas activas (Pendientes o Aceptadas).</p>
             @else
-                <table class="w-full border-collapse">
-                    <thead>
-                        <tr class="bg-gray-200">
-                            <th class="p-2">Ride</th>
-                            <th class="p-2">Estado</th>
-                            <th class="p-2">Acciones</th>
-                        </tr>
-                    </thead>
+                {{-- NUEVO DIV PARA CENTRAR LA TABLA Y LIMITAR SU ANCHO --}}
+                <div class="max-w-5xl mx-auto"> 
+                    <div class="overflow-x-auto">
+                        {{-- TABLA --}}
+                        <table class="min-w-full border-collapse">
+                            <thead>
+                                <tr class="bg-gray-200">
+                                    <th class="p-2 text-left">Chofer</th>
+                                    <th class="p-2 text-left">Ride</th>
+                                    <th class="p-2 text-left">Vehículo</th>
+                                    <th class="p-2 text-left">Origen</th>
+                                    <th class="p-2 text-left">Destino</th>
+                                    <th class="p-2 text-left">Precio</th>
+                                    <th class="p-2 text-left">Fecha/Hora</th>
+                                    <th class="p-2 text-left">Espacios</th>
+                                    <th class="p-2 text-left">Estado</th>
+                                    <th class="p-2 text-left">Acciones</th>
+                                </tr>
+                            </thead>
 
-                    <tbody>
-                        @foreach ($misReservas as $res)
-                            <tr class="border-b">
-                                <td class="p-2">{{ $res->ride->nombre }}</td>
-                                <td class="p-2">{{ $res->estado }}</td>
-                                <td class="p-2">
+                            <tbody>
+                                @foreach ($misReservas as $res)
+                                    <tr class="border-b">
+                                        {{-- Chofer --}}
+                                        <td class="p-2 whitespace-nowrap">
+                                            {{ $res->ride->user->nombre ?? 'N/A' }} {{ $res->ride->user->apellido ?? '' }}
+                                        </td>
+                                        
+                                        {{-- Nombre del Ride --}}
+                                        <td class="p-2">{{ $res->ride->nombre }}</td>
 
-                                    {{-- Cancelar solo si está Pendiente o Aceptada --}}
-                                    @if(in_array($res->estado, ['Pendiente','Aceptada']))
-                                        <form action="{{ route('reservas.cancelar', $res) }}" 
-                                              method="POST" 
-                                              onsubmit="return confirm('¿Cancelar reserva?')">
+                                        {{-- Vehículo --}}
+                                        <td class="p-2 whitespace-nowrap">
+                                            {{ $res->ride->vehiculo->marca ?? 'N/A' }} - 
+                                            {{ $res->ride->vehiculo->modelo ?? '' }}
+                                        </td>
 
-                                            @csrf
-                                            <button class="text-red-600 underline">
-                                                Cancelar
-                                            </button>
-                                        </form>
-                                    @else
-                                        <span class="text-gray-400">Sin acciones</span>
-                                    @endif
+                                        {{-- Origen --}}
+                                        <td class="p-2">{{ $res->ride->origen }}</td>
 
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
+                                        {{-- Destino --}}
+                                        <td class="p-2">{{ $res->ride->destino }}</td>
 
-                </table>
+                                        {{-- Precio --}}
+                                        <td class="p-2 whitespace-nowrap">
+                                            ${{ number_format($res->ride->costo_por_espacio, 2) }}
+                                        </td>
+
+                                        {{-- Fecha/Hora --}}
+                                        <td class="p-2 whitespace-nowrap">
+                                            {{ \Carbon\Carbon::parse($res->ride->fecha)->format('d/m/Y') }}
+                                            <br>
+                                            {{ $res->ride->hora }}
+                                        </td>
+
+                                        {{-- Espacios --}}
+                                        <td class="p-2">
+                                            {{ $res->espacios ?? 1 }}
+                                        </td>
+
+                                        {{-- ESTADO: Usando valores numéricos --}}
+                                        <td class="p-2 whitespace-nowrap">
+                                            @if ($res->estado == 1) 
+                                                <span class="text-yellow-600 font-semibold">Pendiente</span>
+                                            @elseif ($res->estado == 2)
+                                                <span class="text-green-600 font-semibold">Aceptada</span>
+                                            @endif
+                                        </td>
+                                        
+                                        {{-- ACCIONES --}}
+                                        <td class="p-2">
+                                            {{-- Permitir CANCELAR si está Pendiente (1) o Aceptada (2) --}}
+                                            <form action="{{ route('reservas.cancelar', $res) }}" 
+                                                    method="POST" 
+                                                    onsubmit="return confirm('¿Está seguro de que desea cancelar esta reserva?')">
+
+                                                @csrf
+                                                <button class="text-red-600 hover:text-red-800 underline font-medium">
+                                                    Cancelar
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div> {{-- CIERRE DEL NUEVO DIV --}}
+            @endif
+        </div>
+        
+        {{-- ========================================================== --}}
+        {{-- 2. HISTORIAL (Canceladas y Rechazadas) --}}
+        {{-- ========================================================== --}}
+        <div class="bg-white p-6 rounded shadow mb-8">
+            <h3 class="text-xl font-semibold mb-4">Historial de reservas</h3>
+
+            @if ($historialReservas->isEmpty())
+                <p class="text-gray-600">No hay reservas en el historial (Rechazadas o Canceladas).</p>
+            @else
+                {{-- NUEVO DIV PARA CENTRAR LA TABLA Y LIMITAR SU ANCHO --}}
+                <div class="max-w-5xl mx-auto">
+                    <div class="overflow-x-auto">
+                        {{-- TABLA --}}
+                        <table class="min-w-full border-collapse">
+                            <thead>
+                                <tr class="bg-gray-200">
+                                    <th class="p-2 text-left">Chofer</th>
+                                    <th class="p-2 text-left">Ride</th>
+                                    <th class="p-2 text-left">Vehículo</th>
+                                    <th class="p-2 text-left">Origen</th>
+                                    <th class="p-2 text-left">Destino</th>
+                                    <th class="p-2 text-left">Precio</th>
+                                    <th class="p-2 text-left">Fecha/Hora</th>
+                                    <th class="p-2 text-left">Espacios</th>
+                                    <th class="p-2 text-left">Estado</th>
+                                    <th class="p-2 text-left">Acciones</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                @foreach ($historialReservas as $res)
+                                    <tr class="border-b">
+                                        {{-- Chofer --}}
+                                        <td class="p-2 whitespace-nowrap">
+                                            {{ $res->ride->user->nombre ?? 'N/A' }} {{ $res->ride->user->apellido ?? '' }}
+                                        </td>
+                                        
+                                        {{-- Nombre del Ride --}}
+                                        <td class="p-2">{{ $res->ride->nombre }}</td>
+
+                                        {{-- Vehículo --}}
+                                        <td class="p-2 whitespace-nowrap">
+                                            {{ $res->ride->vehiculo->marca ?? 'N/A' }} - 
+                                            {{ $res->ride->vehiculo->modelo ?? '' }}
+                                        </td>
+
+                                        {{-- Origen --}}
+                                        <td class="p-2">{{ $res->ride->origen }}</td>
+
+                                        {{-- Destino --}}
+                                        <td class="p-2">{{ $res->ride->destino }}</td>
+
+                                        {{-- Precio --}}
+                                        <td class="p-2 whitespace-nowrap">
+                                            ${{ number_format($res->ride->costo_por_espacio, 2) }}
+                                        </td>
+
+                                        {{-- Fecha/Hora --}}
+                                        <td class="p-2 whitespace-nowrap">
+                                            {{ \Carbon\Carbon::parse($res->ride->fecha)->format('d/m/Y') }}
+                                            <br>
+                                            {{ $res->ride->hora }}
+                                        </td>
+
+                                        {{-- Espacios --}}
+                                        <td class="p-2">
+                                            {{ $res->espacios ?? 1 }}
+                                        </td>
+
+                                        {{-- ESTADO: Usando valores numéricos --}}
+                                        <td class="p-2 whitespace-nowrap">
+                                            @if ($res->estado == 3)
+                                                <span class="text-red-600 font-semibold">Rechazada</span>
+                                            @elseif ($res->estado == 4)
+                                                <span class="text-gray-500 font-semibold">Cancelada</span>
+                                            @endif
+                                        </td>
+                                        
+                                        {{-- ACCIONES --}}
+                                        <td class="p-2">
+                                            <span class="text-gray-400">Sin acciones</span>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div> {{-- CIERRE DEL NUEVO DIV --}}
             @endif
         </div>
 
