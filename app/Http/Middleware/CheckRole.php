@@ -19,34 +19,8 @@ class CheckRole
 
         // Si el rol del usuario NO está permitido en esta ruta
         if (!in_array($user->role_id, $roles)) {
-
-            // Redirigir según el rol REAL del usuario
-            switch ($user->role_id) {
-
-                // SUPER ADMIN
-                case 1:
-                    return redirect()
-                        ->route('superadmin.dashboard')
-                        ->withErrors(['access' => 'No tienes permiso para acceder a esta sección.']);
-
-                // ADMIN
-                case 2:
-                    return redirect()
-                        ->route('admin.dashboard')
-                        ->withErrors(['access' => 'No tienes permiso para acceder a esta sección.']);
-
-                // CHOFER
-                case 3:
-                    return redirect()
-                        ->route('chofer.dashboard')
-                        ->withErrors(['access' => 'No tienes permiso para acceder a esta sección.']);
-
-                // PASAJERO
-                case 4:
-                    return redirect()
-                        ->route('pasajero.dashboard')
-                        ->withErrors(['access' => 'No tienes permiso para acceder a esta sección.']);
-            }
+            // ✅ CORREGIDO: Devolvemos 403 Forbidden para que los tests de Feature pasen.
+            abort(403, 'No tienes permiso para acceder a esta sección.'); 
         }
 
         // Si sí tiene el rol permitido

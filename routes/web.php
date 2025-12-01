@@ -164,3 +164,6 @@ Route::middleware(['auth', 'role:1,2'])->group(function () {
         ->name('admin.store');
 
 });
+
+// Añade esta línea para que el login pueda redirigir
+Route::view('/dashboard', 'dashboard')->middleware(['auth'])->name('dashboard');

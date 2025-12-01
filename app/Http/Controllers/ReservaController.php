@@ -13,6 +13,8 @@ class ReservaController extends Controller
     // ---------------------------
     public function store(Request $request)
     {
+        // La validación de Laravel devuelve 422 JSON si recibe 'Accept: application/json',
+        // o un 302 a 'back()' si es una petición web. Esto funciona bien.
         $request->validate([
             'ride_id' => 'required|exists:rides,id'
         ]);
@@ -26,6 +28,13 @@ class ReservaController extends Controller
                         ->first();
 
         if ($existe) {
+            // 🔥 CORRECCIÓN 1: Si el cliente espera JSON, devolvemos 400.
+            if ($request->expectsJson()) {
+                 return response()->json([
+                     'message' => 'No se pudo crear la reserva. Verifique la disponibilidad u otros requisitos.'
+                 ], 400);
+            }
+            // Comportamiento Web tradicional
             return back()->withErrors('Ya tienes una reserva activa o pendiente para este ride.');
         }
 
@@ -35,6 +44,12 @@ class ReservaController extends Controller
             'estado' => 1 // PENDIENTE
         ]);
 
+        // 🔥 CORRECCIÓN 2: Si el cliente espera JSON, devolvemos 201.
+        if ($request->expectsJson()) {
+            return response()->json(['message' => 'Reserva creada con éxito'], 201);
+        }
+
+        // Comportamiento Web tradicional
         return back()->with('success', 'Reserva creada correctamente.');
     }
 
@@ -49,6 +64,11 @@ class ReservaController extends Controller
 
         $reserva->estado = 4; // CANCELADA
         $reserva->save();
+
+        // 🔥 CORRECCIÓN 3: Si el cliente espera JSON, devolvemos 200.
+        if (request()->expectsJson()) {
+            return response()->json(['message' => 'Reserva cancelada con éxito'], 200);
+        }
 
         return back()->with('success', 'Reserva cancelada.');
     }
@@ -67,6 +87,11 @@ class ReservaController extends Controller
         $reserva->estado = 2; // ACEPTADA
         $reserva->save();
 
+        // 🔥 CORRECCIÓN 4: Si el cliente espera JSON, devolvemos 200.
+        if (request()->expectsJson()) {
+            return response()->json(['message' => 'Reserva aceptada con éxito'], 200);
+        }
+
         return back()->with('success', 'Reserva aceptada.');
     }
 
@@ -83,6 +108,11 @@ class ReservaController extends Controller
 
         $reserva->estado = 3; // RECHAZADA. Esto activará el botón de Reservar nuevamente.
         $reserva->save();
+        
+        // 🔥 CORRECCIÓN 5: Si el cliente espera JSON, devolvemos 200.
+        if (request()->expectsJson()) {
+            return response()->json(['message' => 'Reserva rechazada con éxito'], 200);
+        }
 
         return back()->with('success', 'Reserva rechazada.');
     }

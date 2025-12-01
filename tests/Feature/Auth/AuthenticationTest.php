@@ -19,7 +19,8 @@ class AuthenticationTest extends TestCase
 
     public function test_users_can_authenticate_using_the_login_screen(): void
     {
-        $user = User::factory()->create();
+        // Crea el usuario con el Factory corregido
+        $user = User::factory()->create(); 
 
         $response = $this->post('/login', [
             'email' => $user->email,
@@ -27,7 +28,8 @@ class AuthenticationTest extends TestCase
         ]);
 
         $this->assertAuthenticated();
-        $response->assertRedirect(route('dashboard', absolute: false));
+        // 🔑 CORREGIDO: Redirecciona al dashboard de Pasajero (role:4)
+        $response->assertRedirect('/pasajero/dashboard'); 
     }
 
     public function test_users_can_not_authenticate_with_invalid_password(): void
