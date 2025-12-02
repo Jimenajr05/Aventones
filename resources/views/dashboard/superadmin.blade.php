@@ -3,7 +3,7 @@
     <section class="w-11/12 max-w-screen-xl mx-auto mt-24 bg-white p-6 sm:p-10 rounded-2xl 
                     shadow-[0_8px_25px_rgba(0,0,0,0.08)] text-center">
 
-        <h1 class="text-3xl font-bold mb-6 text-[#0B3D2E]">Panel del Super administrador</h1>
+        <h1 class="text-3xl font-bold mb-6 text-[#0B3D2E]">Panel del Super Administrador</h1>
 
         <div class="flex flex-wrap justify-center gap-8">
 

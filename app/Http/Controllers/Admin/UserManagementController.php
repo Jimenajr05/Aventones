@@ -73,11 +73,6 @@ class UserManagementController extends Controller
             return back()->withErrors(['error' => 'No puedes modificar al Super Admin.']);
         }
 
-        // No puede cambiarse a sí mismo
-        if ($auth->id === $user->id) {
-            return back()->withErrors(['error' => 'No puedes modificar tu propio estado.']);
-        }
-
         // Activar usuario
         $user->status_id = 2; // Activo
         $user->save();
@@ -98,7 +93,7 @@ class UserManagementController extends Controller
 
         // No puede desactivarse a sí mismo
         if ($auth->id === $user->id) {
-            return back()->withErrors(['error' => 'No puedes cambiar tu propio estado.']);
+            return back()->withErrors(['error' => 'No puedes desactivarte tú mismo.']);
         }
 
         // Desactivar usuario

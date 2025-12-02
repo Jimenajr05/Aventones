@@ -1,10 +1,20 @@
+<div class="mb-6 px-6 pt-6">
+    <a href="{{ route('public.index') }}"
+       class="inline-flex items-center px-2 py-2 bg-gray-800 border border-transparent 
+              rounded-md font-semibold text-xs text-white uppercase tracking-widest 
+              hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:ring-2 
+              focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
+        ← Volver al inicio
+    </a>
+</div>
+
 <x-guest-layout>
     <form method="POST" action="{{ route('register') }}" enctype="multipart/form-data">
         @csrf
 
         <!-- Nombre -->
         <div>
-            <x-input-label for="nombre" :value="__('Nombre')" />
+            <x-input-label for="nombre" :value="__('Nombre:')" />
             <x-text-input id="nombre" class="block mt-1 w-full" 
                           type="text" 
                           name="nombre" 
@@ -15,7 +25,7 @@
 
         <!-- Apellido -->
         <div class="mt-4">
-            <x-input-label for="apellido" :value="__('Apellido')" />
+            <x-input-label for="apellido" :value="__('Apellidos:')" />
             <x-text-input id="apellido" class="block mt-1 w-full" 
                           type="text" 
                           name="apellido" 
@@ -26,7 +36,7 @@
 
         <!-- Email -->
         <div class="mt-4">
-            <x-input-label for="email" :value="__('Correo electrónico')" />
+            <x-input-label for="email" :value="__('Correo electrónico:')" />
             <x-text-input id="email" class="block mt-1 w-full" 
                           type="email" 
                           name="email" 
@@ -37,7 +47,7 @@
 
         <!-- Cédula -->
         <div class="mt-4">
-            <x-input-label for="cedula" :value="__('Número de cédula')" />
+            <x-input-label for="cedula" :value="__('Número de cédula:')" />
             <x-text-input id="cedula" class="block mt-1 w-full" 
                           type="text" 
                           name="cedula" 
@@ -48,7 +58,7 @@
 
         <!-- Fecha de nacimiento -->
         <div class="mt-4">
-            <x-input-label for="fecha_nacimiento" :value="__('Fecha de nacimiento')" />
+            <x-input-label for="fecha_nacimiento" :value="__('Fecha de nacimiento:')" />
             <x-text-input id="fecha_nacimiento" class="block mt-1 w-full" 
                           type="date" 
                           name="fecha_nacimiento" 
@@ -59,7 +69,7 @@
 
         <!-- Teléfono -->
         <div class="mt-4">
-            <x-input-label for="telefono" :value="__('Número de teléfono')" />
+            <x-input-label for="telefono" :value="__('Número de teléfono:')" />
             <x-text-input id="telefono" class="block mt-1 w-full" 
                           type="text" 
                           name="telefono" 
@@ -70,7 +80,7 @@
 
         <!-- Fotografía -->
         <div class="mt-4">
-            <x-input-label for="foto" :value="__('Fotografía de perfil')" />
+            <x-input-label for="foto" :value="__('Fotografía de perfil:')" />
             <input id="foto" class="block mt-1 w-full" 
                    type="file" name="foto" accept="image/*" />
             <x-input-error :messages="$errors->get('foto')" class="mt-2" />
@@ -78,7 +88,7 @@
 
         <!-- Tipo de usuario -->
         <div class="mt-4">
-            <x-input-label for="role_id" :value="__('Tipo de usuario')" />
+            <x-input-label for="role_id" :value="__('Tipo de usuario:')" />
             <select id="role_id" name="role_id" class="block mt-1 w-full" required>
                 <option value="">Seleccione...</option>
                 <option value="3">Chofer</option>
@@ -89,7 +99,7 @@
 
         <!-- Contraseña -->
         <div class="mt-4">
-            <x-input-label for="password" :value="__('Contraseña')" />
+            <x-input-label for="password" :value="__('Contraseña:')" />
             <x-text-input id="password" class="block mt-1 w-full" 
                           type="password" 
                           name="password" 
@@ -99,7 +109,7 @@
 
         <!-- Confirmar contraseña -->
         <div class="mt-4">
-            <x-input-label for="password_confirmation" :value="__('Confirmar contraseña')" />
+            <x-input-label for="password_confirmation" :value="__('Confirmar contraseña:')" />
             <x-text-input id="password_confirmation" class="block mt-1 w-full" 
                           type="password" 
                           name="password_confirmation" 
