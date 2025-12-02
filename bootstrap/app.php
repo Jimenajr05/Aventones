@@ -11,13 +11,15 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        // Middleware para bloquear usuarios Pendiente o Inactivo (Aventones)
+
+        // Middleware GLOBAL (opcional, si lo quieres global)
         $middleware->web([
             \App\Http\Middleware\CheckUserStatus::class,
         ]);
 
-        // Middleware de roles (Aventones)
+        // Aliases para middleware de rutas
         $middleware->alias([
+            'status' => \App\Http\Middleware\CheckUserStatus::class,  
             'role' => \App\Http\Middleware\CheckRole::class,
         ]);
     })

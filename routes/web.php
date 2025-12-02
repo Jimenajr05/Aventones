@@ -22,7 +22,7 @@ Route::get('/', [RidePublicController::class, 'index'])
 // ---------------------------------------------------------
 // DASHBOARDS POR ROL
 // ---------------------------------------------------------
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth', 'verified', 'status'])->group(function () {
 
     // SUPER ADMIN (role:1)
     Route::get('/super-admin/dashboard', function () {
@@ -50,7 +50,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 // ---------------------------------------------------------
 // PERFIL DE USUARIO
 // ---------------------------------------------------------
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'status'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
@@ -61,17 +61,17 @@ require __DIR__.'/auth.php';
 
 //
 // ---------------------------------------------------------
-// SUPER ADMIN — GESTIÓN COMPLETA DE USUARIOS
+// SUPER ADMIN + ADMIN — GESTIÓN DE USUARIOS
 // ---------------------------------------------------------
-Route::middleware(['auth', 'role:1'])->group(function () {
+Route::middleware(['auth', 'status', 'role:1,2'])->group(function () {
 
-    Route::get('/super-admin/users', [UserManagementController::class, 'index'])
+    Route::get('/admin/users', [UserManagementController::class, 'index'])
         ->name('administradores.gestionUsuarios');
 
-    Route::post('/super-admin/users/{id}/activate', [UserManagementController::class, 'activate'])
+    Route::post('/admin/users/{id}/activate', [UserManagementController::class, 'activate'])
         ->name('administradores.gestionUsuarios.activate');
 
-    Route::post('/super-admin/users/{id}/deactivate', [UserManagementController::class, 'deactivate'])
+    Route::post('/admin/users/{id}/deactivate', [UserManagementController::class, 'deactivate'])
         ->name('administradores.gestionUsuarios.deactivate');
 });
 
@@ -100,12 +100,12 @@ Route::get('/activate/{token}', function ($token) {
 // ---------------------------------------------------------
 // CHOFER (role:3) — Vehículos & Rides
 // ---------------------------------------------------------
-Route::middleware(['auth', 'role:3'])->group(function () {
+Route::middleware(['auth', 'status', 'role:3'])->group(function () {
 
     // VEHÍCULOS
     Route::get('/vehiculos', [VehiculoController::class, 'index'])->name('vehiculos.index');
     Route::post('/vehiculos', [VehiculoController::class, 'store'])->name('vehiculos.store');
-    Route::patch('/vehiculos/{vehiculo}', [VehiculoController::class, 'update'])->name('vehiculos.update');   // 🔥 AGREGADO
+    Route::patch('/vehiculos/{vehiculo}', [VehiculoController::class, 'update'])->name('vehiculos.update');
     Route::delete('/vehiculos/{vehiculo}', [VehiculoController::class, 'destroy'])->name('vehiculos.destroy');
 
     // RIDES
@@ -120,9 +120,7 @@ Route::middleware(['auth', 'role:3'])->group(function () {
 // ---------------------------------------------------------
 // PASAJERO (role:4) — Reservas
 // ---------------------------------------------------------
-Route::middleware(['auth','role:4'])->group(function() {
-    // RUTA DE BUSQUEDA PROTEGIDA PARA PASAJEROS
-    // Usa el mismo controlador para la vista buscarRides.blade.php
+Route::middleware(['auth','status','role:4'])->group(function() {
     Route::get('buscarRides/buscarRides', [BuscarRideController::class, 'vistaBuscar'])
         ->name('pasajero.buscar_rides');
 
@@ -139,7 +137,7 @@ Route::middleware(['auth','role:4'])->group(function() {
 // ---------------------------------------------------------
 // CHOFER (role:3) — Reservas recibidas
 // ---------------------------------------------------------
-Route::middleware(['auth','role:3'])->group(function() {
+Route::middleware(['auth','status','role:3'])->group(function() {
     Route::post('/reservas/{reserva}/aceptar', [ReservaController::class, 'aceptar'])
         ->name('reservas.aceptar');
 
@@ -155,15 +153,30 @@ Route::middleware(['auth','role:3'])->group(function() {
 // ---------------------------------------------------------
 // REGISTRAR ADMIN (SuperAdmin y Admin) — roles 1 y 2
 // ---------------------------------------------------------
-Route::middleware(['auth', 'role:1,2'])->group(function () {
+Route::middleware(['auth', 'status', 'role:1,2'])->group(function () {
 
     Route::get('/admin/crear', [UserManagementController::class, 'createAdmin'])
         ->name('admin.create');
 
     Route::post('/admin/crear', [UserManagementController::class, 'storeAdmin'])
         ->name('admin.store');
-
 });
 
-// Añade esta línea para que el login pueda redirigir
-Route::view('/dashboard', 'dashboard')->middleware(['auth'])->name('dashboard');
+
+
+// ---------------------------------------------------------
+// Ruta para redirigir al dashboard según el rol
+// ---------------------------------------------------------
+Route::get('/dashboard', function () {
+
+    $user = Auth::user();
+
+    return match ($user->role_id) {
+        1 => redirect()->route('superadmin.dashboard'),
+        2 => redirect()->route('admin.dashboard'),
+        3 => redirect()->route('chofer.dashboard'),
+        4 => redirect()->route('pasajero.dashboard'),
+        default => abort(403),
+    };
+
+})->middleware(['auth', 'verified', 'status']);

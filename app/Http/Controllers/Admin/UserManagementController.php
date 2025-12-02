@@ -16,7 +16,7 @@ class UserManagementController extends Controller
         return view('administradores.gestionUsuarios.index', compact('users'));
     }
 
-    //  REGISTRAR NUEVO ADMIN (rol_id = 1)
+    //  REGISTRAR NUEVO ADMIN (rol_id = 2)
     public function createAdmin()
     {
         return view('administradores.gestionUsuarios.registroAdmin');
@@ -28,12 +28,16 @@ class UserManagementController extends Controller
             'nombre' => 'required|string|max:255',
             'apellido' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
-            'cedula' => 'required|string|max:20|unique:users,cedula',
-            'fecha_nacimiento' => 'required|date',
+            'cedula' => 'required|string|max:20',
+            'fecha_nacimiento' => ['required', 'date', function ($attribute, $value, $fail) {
+                if (\Carbon\Carbon::parse($value)->age < 18) {
+                    $fail('El administrador debe ser mayor de 18 años.');
+                }
+            }],
             'telefono' => 'required|string|max:20',
-            'foto' => 'nullable|image|max:2048',
-            'password' => 'required|min:6|confirmed',
+            'password' => 'required|string|min:8|confirmed',
         ]);
+
 
         // Subir foto
         $rutaFoto = null;
@@ -50,7 +54,7 @@ class UserManagementController extends Controller
             'fecha_nacimiento' => $request->fecha_nacimiento,
             'telefono' => $request->telefono,
             'foto' => $rutaFoto,
-            'role_id' => 1,      // 🔥 ADMIN FIJO
+            'role_id' => 2,      // 🔥 ADMIN FIJO
             'status_id' => 2,    // Activo
             'password' => Hash::make($request->password),
         ]);

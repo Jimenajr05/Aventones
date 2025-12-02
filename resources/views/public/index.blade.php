@@ -95,16 +95,52 @@
             </section>
         @endguest
         
-        {{-- Muestra el mensaje y botón de Panel si está logueado (@auth) y lo centra --}}
+        {{-- Muestra el mensaje y botón de Panel si está logueado --}}
         @auth
             <section class="acciones">
-                <p style="margin-bottom: 10px; font-weight: 600;">¡Hola, {{ Auth::user()->nombre }}! Ya estás en sesión.</p>
-                {{-- Se envuelve el botón en un div para forzar el centrado como bloque --}}
+                <p style="margin-bottom: 10px; font-weight: 600;">
+                    ¡Hola, {{ Auth::user()->nombre }}! Ya estás en sesión.
+                </p>
+
                 <div style="text-align: center;">
-                    <a href="{{ route('pasajero.dashboard') }}" class="btn" style="display: inline-block;">Ir a mi Panel Principal</a>
+                    @php
+                        $role = Auth::user()->role_id;
+                    @endphp
+
+                    {{-- SUPER ADMIN --}}
+                    @if($role == 1)
+                        <a href="{{ route('superadmin.dashboard') }}" class="btn" style="display: inline-block;">
+                            Ir a mi Panel SuperAdmin
+                        </a>
+
+                    {{-- ADMIN --}}
+                    @elseif($role == 2)
+                        <a href="{{ route('admin.dashboard') }}" class="btn" style="display: inline-block;">
+                            Ir a mi Panel Admin
+                        </a>
+
+                    {{-- CHOFER --}}
+                    @elseif($role == 3)
+                        <a href="{{ route('chofer.dashboard') }}" class="btn" style="display: inline-block;">
+                            Ir a mi Panel Chofer
+                        </a>
+
+                    {{-- PASAJERO --}}
+                    @elseif($role == 4)
+                        <a href="{{ route('pasajero.dashboard') }}" class="btn" style="display: inline-block;">
+                            Ir a mi Panel Pasajero
+                        </a>
+
+                    {{-- CUALQUIER OTRO ROL (por si agregas más) --}}
+                    @else
+                        <a href="{{ route('dashboard') }}" class="btn" style="display: inline-block;">
+                            Ir a mi Panel Principal
+                        </a>
+                    @endif
                 </div>
             </section>
         @endauth
+
 
         {{-- Muestra la sección Admin solo si NO está logueado (@guest) --}}
         @guest

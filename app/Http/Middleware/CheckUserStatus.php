@@ -16,29 +16,30 @@ class CheckUserStatus
      */
     public function handle(Request $request, Closure $next)
     {
-        $user = Auth::user();
-
-        // Si NO hay usuario logueado, continuar
-        if (!$user) {
+        // 1) Si no hay usuario autenticado → continuar normal
+        if (!auth()->check()) {
             return $next($request);
         }
 
-        // Pendiente (1)
+        $user = auth()->user();
+
+        // 2) Si el usuario está pendiente
         if ($user->status_id == 1) {
-            Auth::logout();
+            auth()->logout(); 
             return redirect()->route('login')->withErrors([
                 'email' => 'Tu cuenta está pendiente de activación por un administrador.',
             ]);
         }
 
-        // Inactivo (3)
+        // 3) Si el usuario está inactivo
         if ($user->status_id == 3) {
-            Auth::logout();
+            auth()->logout(); 
             return redirect()->route('login')->withErrors([
                 'email' => 'Tu cuenta está inactiva. Contacte a un administrador.',
             ]);
         }
 
+        // 4) Todo OK
         return $next($request);
     }
 }
