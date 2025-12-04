@@ -9,6 +9,7 @@ use App\Http\Controllers\ReservaController;
 use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\RidePublicController;
 use App\Http\Controllers\BuscarRideController;
+use App\Http\Controllers\Admin\AdminTaskController; // ✅ CORREGIDO: Importando desde la subcarpeta Admin
 
 //
 // ---------------------------------------------------------
@@ -73,6 +74,10 @@ Route::middleware(['auth', 'status', 'role:1,2'])->group(function () {
 
     Route::post('/admin/users/{id}/deactivate', [UserManagementController::class, 'deactivate'])
         ->name('administradores.gestionUsuarios.deactivate');
+
+    // ✅ NUEVA RUTA PARA EJECUTAR EL SCRIPT ARTISAN 
+    Route::post('/admin/ejecutar-comando/notificar-reservas', [AdminTaskController::class, 'executeReservationReminder'])
+        ->name('admin.execute.reservation_reminder');
 });
 
 

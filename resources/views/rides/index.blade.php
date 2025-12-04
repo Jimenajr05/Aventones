@@ -23,167 +23,191 @@
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
 
-            {{-- FORMULARIO PARA CREAR --}}
+            {{-- 1. FORMULARIO PARA CREAR --}}
             <div class="p-6 bg-white rounded-lg shadow">
+                
+                <div class="max-w-lg mx-auto"> 
+                
+                    <h3 class="text-xl font-bold mb-4">Crear nuevo ride</h3>
 
-                <h3 class="text-xl font-bold mb-4">Crear nuevo ride</h3>
+                    <form action="{{ route('rides.store') }}" method="POST" class="space-y-4">
+                        @csrf
 
-                {{-- Aquí mantenemos solo la lógica de CREACIÓN --}}
-                <form action="{{ route('rides.store') }}" method="POST" class="space-y-4">
-                    @csrf
-
-                    <div>
-                        <label class="font-semibold">Nombre del ride:</label>
-                        <input type="text" name="nombre" value="{{ old('nombre') }}"
-                            class="w-full border p-2 rounded" required>
-                    </div>
-
-                    <div>
-                        <label class="font-semibold">Lugar de salida:</label>
-                        <input type="text" name="origen" value="{{ old('origen') }}"
-                            class="w-full border p-2 rounded" required>
-                    </div>
-
-                    <div>
-                        <label class="font-semibold">Lugar de llegada:</label>
-                        <input type="text" name="destino" value="{{ old('destino') }}"
-                            class="w-full border p-2 rounded" required>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label class="font-semibold">Fecha:</label>
-                            <input type="date" name="fecha" value="{{ old('fecha') }}"
-                                   class="w-full border p-2 rounded" required>
+                            <label class="font-semibold">Nombre del ride:</label>
+                            <input type="text" name="nombre" value="{{ old('nombre') }}"
+                                class="w-full border p-2 rounded" required>
                         </div>
 
                         <div>
-                            <label class="font-semibold">Hora:</label>
-                            <input type="time" name="hora" value="{{ old('hora') }}"
-                                   class="w-full border p-2 rounded" required>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="font-semibold">Costo por espacio (₡):</label>
-                            <input type="number" step="0.01" name="costo_por_espacio" value="{{ old('costo_por_espacio') }}"
-                                   class="w-full border p-2 rounded" required>
+                            <label class="font-semibold">Origen:</label>
+                            <input type="text" name="origen" value="{{ old('origen') }}"
+                                class="w-full border p-2 rounded" required>
                         </div>
 
                         <div>
-                            <label class="font-semibold">Cantidad de espacios:</label>
-                            {{-- CAMBIO APLICADO: Se quita el valor por defecto ', 4' de old() --}}
-                            <input type="number" name="espacios" min="1" max="5" value="{{ old('espacios') }}"
-                                   class="w-full border p-2 rounded" required>
+                            <label class="font-semibold">Destino:</label>
+                            <input type="text" name="destino" value="{{ old('destino') }}"
+                                class="w-full border p-2 rounded" required>
                         </div>
-                    </div>
 
-                    <div>
-                        <label class="font-semibold">Vehículo asociado:</label>
-                        <select name="vehiculo_id" class="w-full border p-2 rounded" required>
-                            <option value="">Seleccione un vehículo...</option>
-                            @foreach ($vehiculos as $vehiculo)
-                                <option value="{{ $vehiculo->id }}"
-                                    {{ old('vehiculo_id') == $vehiculo->id ? 'selected' : '' }}>
-                                    {{ $vehiculo->marca }} {{ $vehiculo->modelo }} ({{ $vehiculo->placa }})
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="font-semibold">Fecha:</label>
+                                <input type="date" name="fecha" value="{{ old('fecha') }}"
+                                    class="w-full border p-2 rounded" required>
+                            </div>
+                            <div>
+                                <label class="font-semibold">Hora:</label>
+                                <input type="time" name="hora" value="{{ old('hora') }}"
+                                    class="w-full border p-2 rounded" required>
+                            </div>
+                        </div>
 
-                    <div class="mt-4">
+                        
+                        <div>
+                            <label class="font-semibold">Vehículo:</label>
+                            <select name="vehiculo_id" class="w-full border p-2 rounded" required>
+                                <option value="">Seleccione un vehículo</option>
+                                @foreach ($vehiculos as $vehiculo)
+                                    <option value="{{ $vehiculo->id }}"
+                                        {{ old('vehiculo_id') == $vehiculo->id ? 'selected' : '' }}>
+                                        {{ $vehiculo->marca }} ({{ $vehiculo->placa }})
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="font-semibold">Costo por espacio:</label>
+                                <input type="number" name="costo_por_espacio" value="{{ old('costo_por_espacio') }}"
+                                    step="0.01" class="w-full border p-2 rounded" required>
+                            </div>
+                            <div>
+                                <label class="font-semibold">Espacios disponibles:</label>
+                                <input type="number" name="espacios" value="{{ old('espacios') }}"
+                                    class="w-full border p-2 rounded" required min="1">
+                            </div>
+                        </div>
+
                         <button type="submit"
-                            class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded">
-                            🚙 Crear ride
+                            class="mt-4 w-full bg-indigo-600 text-white p-3 rounded-lg font-semibold hover:bg-indigo-700 transition duration-300">
+                            Publicar Ride
                         </button>
-                    </div>
-
-                </form>
+                    </form>
+                    
+                </div>
             </div>
 
-            {{-- TABLA DE RIDES --}}
+
+            {{-- 2. Listado de Rides --}}
             <div class="p-6 bg-white rounded-lg shadow">
-                <h3 class="text-xl font-bold mb-4">Mis Rides</h3>
-
+                <h3 class="text-xl font-bold mb-4">Mis Rides Publicados ({{ $rides->count() }})</h3>
+                
                 @if ($rides->isEmpty())
-                    <p class="text-gray-500">No tienes rides registrados.</p>
-                @else
-                    <div class="overflow-x-auto">
-                        <table class="w-full border-collapse">
-                            <thead>
-                                <tr class="bg-gray-200 text-left">
-                                    <th class="p-2">Nombre</th>
-                                    <th class="p-2">Origen</th>
-                                    <th class="p-2">Destino</th>
-                                    <th class="p-2">Fecha</th>
-                                    <th class="p-2">Hora</th>
-                                    <th class="p-2">Vehículo</th>
-                                    <th class="p-2">Costo</th>
-                                    <th class="p-2">Espacios</th>
-                                    <th class="p-2">Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach ($rides as $ride)
-                                    <tr class="border-b">
-                                        <td class="p-2">{{ $ride->nombre }}</td>
-                                        <td class="p-2">{{ $ride->origen }}</td>
-                                        <td class="p-2">{{ $ride->destino }}</td>
-                                        <td class="p-2">{{ $ride->fecha }}</td>
-                                        <td class="p-2">{{ $ride->hora }}</td>
-                                        <td class="p-2">
-                                            {{ $ride->vehiculo->marca }} {{ $ride->vehiculo->modelo }} ({{ $ride->vehiculo->placa }})
-                                        </td>
-                                        <td class="p-2">₡{{ number_format($ride->costo_por_espacio, 2) }}</td>
-                                        <td class="p-2">{{ $ride->espacios }}</td>
-
-                                        <td class="p-2">
-                                            {{-- LLAMADA AL MODAL --}}
-                                            <a href="#" onclick="openEditModal({{ json_encode($ride) }})"
-                                               class="text-blue-600 hover:underline block mb-2">
-                                                ✏️ Editar
-                                            </a>
-
-                                            {{-- ELIMINAR --}}
-                                            <form action="{{ route('rides.destroy', $ride) }}"
-                                                  method="POST"
-                                                  onsubmit="return confirm('¿Eliminar este ride?')">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button class="text-red-600 hover:underline">
-                                                    🗑️ Eliminar
-                                                </button>
-                                            </form>
-                                        </td>
-
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
+                    <p class="text-gray-600">Aún no has publicado ningún ride. Usa el formulario de la izquierda.</p>
                 @endif
+                
+                <div class="grid grid-cols-1 gap-4 mt-6">
+                    @foreach ($rides as $ride)
+                        
+                        @php
+                            // Filtramos solo las reservas activas (Pendientes: 1 y Aceptadas: 2)
+                            $activeReservas = $ride->reservas->whereIn('estado', [1, 2]);
+                            $activeReservasCount = $activeReservas->count();
+                            $espaciosReservados = $activeReservas->sum('espacios_reservados');
+                        @endphp
+                        
+                        <div class="p-4 bg-white rounded-lg shadow border border-gray-100 space-y-2">
+                            <h4 class="text-lg font-bold text-gray-800">{{ $ride->nombre }}</h4>
+                            <p class="text-sm text-gray-600">
+                                <span class="font-semibold">Ruta:</span> {{ $ride->origen }} → {{ $ride->destino }}
+                            </p>
+                            <p class="text-sm text-gray-600">
+                                <span class="font-semibold">Fecha:</span> {{ \Carbon\Carbon::parse($ride->fecha)->format('d/m/Y') }} 
+                                | <span class="font-semibold">Hora:</span> {{ \Carbon\Carbon::parse($ride->hora)->format('H:i') }}
+                            </p>
+                            
+                            <p class="text-sm text-gray-600">
+                                <span class="font-semibold">Costo:</span> ₡{{ number_format($ride->costo_por_espacio, 2) }}
+                                | <span class="font-semibold">Espacios:</span> 
+                                {{ $ride->espacios - $espaciosReservados }} / {{ $ride->espacios }}
+                            </p>
+                            
+                            {{-- SECCIÓN DE BOTONES DE ACCIÓN --}}
+                            <div class="flex gap-2 mt-4">
+
+                                @if ($activeReservasCount > 0)
+                                    
+                                    <span class="inline-block py-1 px-3 text-sm rounded-full text-gray-700 font-semibold bg-gray-200">
+                                        🔒 No se puede editar (Reservado)
+                                    </span>
+                                    
+                                    {{-- El botón de eliminar se mantiene, el controlador validará el bloqueo --}}
+                                    <form action="{{ route('rides.destroy', $ride->id) }}" method="POST"
+                                        onsubmit="return confirm('¿Estás seguro de que deseas eliminar este ride? Si tiene reservas activas, el sistema te lo impedirá.');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit"
+                                            class="inline-block py-1 px-3 text-sm rounded-full text-white font-semibold 
+                                                    bg-red-600 transition duration-300 hover:bg-red-700">
+                                            Eliminar
+                                        </button>
+                                    </form>
+                                @else
+                                    {{-- Botón de Editar (solo si NO tiene reservas activas) --}}
+                                    <button onclick="openEditModal({{ $ride->toJson() }})"
+                                        class="inline-block py-1 px-3 text-sm rounded-full text-white font-semibold 
+                                                bg-blue-600 transition duration-300 hover:bg-blue-700">
+                                        ✏️ Editar
+                                    </button>
+
+                                    {{-- Botón de Eliminar (solo si NO tiene reservas activas) --}}
+                                    <form action="{{ route('rides.destroy', $ride->id) }}" method="POST"
+                                        onsubmit="return confirm('¿Estás seguro de que deseas eliminar este ride? Esta acción es irreversible.');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit"
+                                            class="inline-block py-1 px-3 text-sm rounded-full text-white font-semibold 
+                                                    bg-red-600 transition duration-300 hover:bg-red-700">
+                                            🗑️ Eliminar
+                                        </button>
+                                    </form>
+                                @endif
+
+                            </div>
+
+                        </div>
+                    @endforeach
+                </div>
+                
             </div>
 
         </div>
+
+
     </div>
 
-    <div id="editRideModal"
-         class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
 
-        <div class="bg-white p-6 rounded-lg w-full max-w-xl">
+    <div id="editRideModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 items-center justify-center">
+        
+        {{-- **CLAVE:** max-w-lg para hacerlo menos ancho que max-w-xl --}}
+        <div class="bg-white p-6 rounded-lg w-full max-w-xl"> 
+            
             <h3 class="text-xl font-bold mb-4">Editar Ride</h3>
 
-            <form id="editRideForm" method="POST" class="space-y-4">
+            <form id="editRideForm" method="POST" action="" class="space-y-4">
                 @csrf
-                @method('PATCH')
-
-                {{-- Campos del Ride --}}
+                @method('PATCH') 
+                
+                {{-- Campos del formulario de edición --}}
                 <div>
                     <label class="font-semibold">Nombre del ride:</label>
                     <input type="text" id="edit_nombre" name="nombre" class="w-full border p-2 rounded" required>
                 </div>
-
+                
+                {{-- Origen y Destino ahora en la misma fila --}}
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="font-semibold">Origen:</label>
@@ -196,6 +220,7 @@
                     </div>
                 </div>
 
+                {{-- Fecha y Hora ahora en la misma fila --}}
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="font-semibold">Fecha:</label>
@@ -208,47 +233,48 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="font-semibold">Costo por espacio (₡):</label>
-                        <input type="number" step="0.01" id="edit_costo_por_espacio" name="costo_por_espacio"
-                               class="w-full border p-2 rounded" required>
-                    </div>
-
-                    <div>
-                        <label class="font-semibold">Cantidad de espacios:</label>
-                        <input type="number" id="edit_espacios" name="espacios" min="1" max="5"
-                               class="w-full border p-2 rounded" required>
-                    </div>
-                </div>
-
+    
                 <div>
-                    <label class="font-semibold">Vehículo asociado:</label>
+                    <label class="font-semibold">Vehículo:</label>
                     <select id="edit_vehiculo_id" name="vehiculo_id" class="w-full border p-2 rounded" required>
-                        <option value="">Seleccione un vehículo...</option>
+                        <option value="">Seleccione un vehículo</option>
                         @foreach ($vehiculos as $vehiculo)
                             <option value="{{ $vehiculo->id }}">
-                                {{ $vehiculo->marca }} {{ $vehiculo->modelo }} ({{ $vehiculo->placa }})
+                                {{ $vehiculo->marca }} ({{ $vehiculo->placa }})
                             </option>
                         @endforeach
                     </select>
                 </div>
-                {{-- Fin Campos del Ride --}}
-
+                
+                {{-- Costo y Espacios ahora en la misma fila --}}
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="font-semibold">Costo por espacio:</label>
+                        <input type="number" id="edit_costo_por_espacio" name="costo_por_espacio" step="0.01" class="w-full border p-2 rounded" required>
+                    </div>
+                    <div>
+                        <label class="font-semibold">Espacios disponibles:</label>
+                        <input type="number" id="edit_espacios" name="espacios" class="w-full border p-2 rounded" required min="1">
+                    </div>
+                </div>
 
                 <div class="flex justify-end gap-3 mt-6">
                     <button type="button" onclick="closeEditModal()"
-                            class="px-4 py-2 bg-gray-300 rounded">Cancelar</button>
-
-                    <button class="px-4 py-2 bg-blue-600 text-white rounded">
-                        Actualizar
+                        class="bg-gray-300 text-gray-800 py-2 px-4 rounded-lg font-semibold hover:bg-gray-400 transition duration-300">
+                        Cancelar
+                    </button>
+                    <button type="submit"
+                        class="bg-blue-600 text-white py-2 px-4 rounded-lg font-semibold hover:bg-blue-700 transition duration-300">
+                        Guardar Cambios
                     </button>
                 </div>
 
             </form>
+
         </div>
 
     </div>
+
 
     <script>
         function openEditModal(ride) {
@@ -258,7 +284,7 @@
             document.getElementById('edit_destino').value = ride.destino;
             document.getElementById('edit_fecha').value = ride.fecha;
 
-            // CORRECCIÓN para la hora: elimina los segundos (HH:MM:SS -> HH:MM)
+            // **CORRECCIÓN CLAVE para la hora:** elimina los segundos (HH:MM:SS -> HH:MM)
             if (ride.hora && ride.hora.length > 5) {
                 document.getElementById("edit_hora").value = ride.hora.substring(0, 5);
             } else {

@@ -7,33 +7,62 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
-use App\Models\Reserva;
+use Illuminate\Support\Collection;
 
 class RecordatorioReservasPendientes extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public $reserva;
+    /**
+     * La colección de reservas pendientes para el chofer.
+     * @var Collection
+     */
+    public $reservas; 
 
-    public function __construct(Reserva $reserva)
+    /**
+     * Create a new message instance.
+     *
+     * @param Collection $reservas La colección de reservas
+     */
+    public function __construct(Collection $reservas)
     {
-        $this->reserva = $reserva;
+        $this->reservas = $reservas;
     }
 
+    /**
+     * Get the message envelope.
+     */
     public function envelope(): Envelope
     {
+        $count = $this->reservas->count();
+        $subject = ($count > 1) 
+            ? "Tienes {$count} reservas pendientes de aprobación"
+            : "Tienes una reserva pendiente de aprobación";
+
         return new Envelope(
-            subject: 'Recordatorio: Tienes solicitudes de reserva pendientes',
+            subject: $subject,
         );
     }
 
+    /**
+     * Get the message content.
+     */
     public function content(): Content
     {
         return new Content(
-            view: 'emails.reservas_pendientes',
+            // 🎯 CORRECCIÓN CLAVE AQUÍ: Cambiamos 'recordatorio_reservas' a 'reservas_pendientes'
+            view: 'emails.reservas_pendientes', 
+            with: [
+                'reservas' => $this->reservas, 
+            ],
         );
     }
 
+    /**
+     * Get the attachments for the message.
+     *
+     * @return array<int, \Illuminate\Mail\Mailables\Attachment>
+     */
     public function attachments(): array
     {
         return [];

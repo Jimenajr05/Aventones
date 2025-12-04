@@ -10,7 +10,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 
 use Illuminate\View\View;
-use Illuminate\Support\Str; // Asegurarse de importar Str si no está
+use Illuminate\Support\Str; 
+use Illuminate\Support\Facades\Storage; // 💡 Importar Storage para manejar archivos
 
 class ProfileController extends Controller
 {
@@ -29,19 +30,37 @@ class ProfileController extends Controller
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
-        // 🔑 CORRECCIÓN DE BUG: ASIGNAR LA VARIABLE $user
-        // Esto define $user y soluciona el error 500 de "Undefined variable $user".
+
         $user = $request->user();
-        
-        $user->fill($request->validated()); // Usamos la variable $user
+        $user->fill($request->validated()); 
 
         
-        if ($user->isDirty('email')) {
-            $user->status_id = 1; // Pendiente
-            $user->activation_token = Str::random(60);
+        // 🎯 LÓGICA DE GESTIÓN DE LA FOTO (CORRECCIÓN CLAVE)
+        if ($request->hasFile('foto')) {
+            
+            // 1. Eliminar la foto anterior si existe
+            if ($user->foto) {
+                // Asumiendo que las fotos se guardan en el disco 'public'
+                Storage::disk('public')->delete($user->foto); 
+            }
+            
+            // 2. Guardar la nueva foto
+            // Esto guarda el archivo y devuelve la ruta relativa (e.g., 'avatars/nombre_hash.jpg')
+            $user->foto = $request->file('foto')->store('avatars', 'public');
         }
 
-        $user->save(); // Usamos la variable $user
+
+        // 🎯 LÓGICA DE CAMBIO DE EMAIL (para Super Admin no desactivar)
+        if ($user->isDirty('email')) {
+            
+            // Solo si el usuario NO es Super Admin (role_id != 1), se pone como Pendiente (1)
+            if ($user->role_id != 1) { 
+                $user->status_id = 1; // Pendiente
+                $user->activation_token = Str::random(60);
+            }
+        }
+
+        $user->save(); 
 
         // Redirigir a /profile
         return Redirect::to('/profile')->with('status', 'profile-updated'); 
@@ -57,6 +76,11 @@ class ProfileController extends Controller
         ]);
 
         $user = $request->user();
+        
+        // Antes de eliminar el usuario, eliminamos su foto para liberar espacio.
+        if ($user->foto) {
+             Storage::disk('public')->delete($user->foto);
+        }
 
         Auth::logout();
 
@@ -66,6 +90,6 @@ class ProfileController extends Controller
         $request->session()->regenerateToken();
 
         // Redirigir a la raíz
-        return Redirect::to('/')->with('status', 'user-deleted');
+        return Redirect::to('/'); 
     }
 }

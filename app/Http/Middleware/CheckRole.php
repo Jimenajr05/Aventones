@@ -17,9 +17,13 @@ class CheckRole
             return redirect()->route('login');
         }
 
+        // CORRECCIÓN: Convertir el array de roles de strings a enteros.
+        // Esto garantiza que la comparación de in_array sea correcta.
+        $allowedRoles = array_map('intval', $roles);
+
         // Si el rol del usuario NO está permitido en esta ruta
-        if (!in_array($user->role_id, $roles)) {
-            // ✅ CORREGIDO: Devolvemos 403 Forbidden para que los tests de Feature pasen.
+        if (!in_array($user->role_id, $allowedRoles)) {
+            // Se utiliza la variable corregida $allowedRoles
             abort(403, 'No tienes permiso para acceder a esta sección.'); 
         }
 

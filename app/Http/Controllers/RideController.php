@@ -18,7 +18,8 @@ class RideController extends Controller
         $user = Auth::user();
 
         // Solo rides del chofer logueado
-        $rides = Ride::with('vehiculo')
+        // 💡 Importante: cargamos la relación 'reservas' para usar la lógica de bloqueo en la vista.
+        $rides = Ride::with(['vehiculo', 'reservas']) 
             ->where('user_id', $user->id)
             ->orderBy('fecha')
             ->orderBy('hora')
@@ -44,165 +45,79 @@ class RideController extends Controller
             'destino'          => 'required|string|max:100',
             'fecha'            => 'required|date',
             'hora'             => 'required|date_format:H:i', // Espera 09:30 o 14:45
-            'vehiculo_id'      => 'required|exists:vehiculos,id',
-            'costo_por_espacio'=> 'required|numeric|min:0',
-            'espacios'         => 'required|integer|min:1|max:5',
+            'vehiculo_id'      => 'required|exists:vehiculos,id,user_id,'.$user->id, // Debe ser su vehículo
+            'costo_por_espacio' => 'required|numeric|min:0.01',
+            'espacios'         => 'required|integer|min:1|max:10', // Máximo 10 asientos
         ]);
 
-        // Verificar que el vehículo sea del chofer logueado
-        $vehiculo = Vehiculo::where('id', $request->vehiculo_id)
-            ->where('user_id', $user->id)
-            ->first();
+        // Formato correcto de hora para guardar en la BD (HH:MM:SS)
+        $hora_formateada = $request->hora . ':00';
 
-        if (!$vehiculo) {
-            return back()
-                ->withErrors('El vehículo seleccionado no es válido.')
-                ->withInput();
-        }
-
-        // Validar espacios vs capacidad del vehículo
-        if ($request->espacios > $vehiculo->capacidad) {
-            return back()
-                ->withErrors("No puedes asignar {$request->espacios} espacios, la capacidad del vehículo es de {$vehiculo->capacidad}.")
-                ->withInput();
-        }
-
-        // ====== PRE-PROCESAMIENTO Y VALIDACIÓN DE COSTO ======
-        $costo = (float) $request->costo_por_espacio;
-        $fecha = Carbon::parse($request->fecha);
-        
-        // Formateamos la hora para asegurar H:i y los cálculos
-        $carbon_hora = Carbon::createFromFormat('H:i', $request->hora);
-        $hora_formateada  = $carbon_hora->format('H:i');
-
-        // Base
-        $min = 500;
-
-        // Fin de semana: sábado (6) o domingo (0)
-        if (in_array($fecha->dayOfWeek, [0, 6], true)) {
-            $min = max($min, 700);
-        }
-
-        // Horario nocturno: 22:00 – 05:59
-        $h = $carbon_hora->hour; // Obtenemos la hora entera directamente del objeto Carbon
-        if ($h >= 22 || $h <= 5) {
-            $min = max($min, 800);
-        }
-
-        if ($costo < $min) {
-            return back()
-                ->withErrors("El costo ingresado (₡{$costo}) es menor al mínimo permitido para ese día/horario (₡{$min}).")
-                ->withInput();
-        }
-
-        if ($costo > 30000) {
-            return back()
-                ->withErrors("El costo ingresado excede el máximo permitido (₡30 000).")
-                ->withInput();
-        }
-
-        // ====== VALIDAR RIDE DUPLICADO ======
-        $existe = Ride::where('user_id', $user->id)
+        // VALIDACIÓN DE DUPLICADOS (un chofer no puede tener dos rides con el mismo vehículo, fecha y hora)
+        $duplicado = Ride::where('user_id', $user->id)
             ->where('vehiculo_id', $request->vehiculo_id)
             ->where('fecha', $request->fecha)
-            ->where('hora', $hora_formateada) // Usamos la hora formateada
+            ->where('hora', $hora_formateada)
             ->exists();
 
-        if ($existe) {
-            return back()
-                ->withErrors('Ya existe un ride con este vehículo en la misma fecha y hora.')
-                ->withInput();
+        if ($duplicado) {
+            return back()->withInput()->withErrors('Ya existe un ride con ese vehículo en la misma fecha y hora.');
         }
 
-        // Crear ride
-        Ride::create([
-            'user_id'          => $user->id,
-            'vehiculo_id'      => $request->vehiculo_id,
-            'nombre'           => $request->nombre,
-            'origen'           => $request->origen,
-            'destino'          => $request->destino,
-            'fecha'            => $request->fecha,
-            'hora'             => $hora_formateada, // Guardamos la hora formateada
-            'costo_por_espacio'=> $costo,
-            'espacios'         => $request->espacios,
-        ]);
+        Ride::create(array_merge($request->all(), [
+            'user_id' => $user->id,
+            'hora' => $hora_formateada, // Sobreescribimos con el formato H:i:s
+        ]));
 
-        return redirect()->route('rides.index')
-            ->with('success', 'Ride creado correctamente.');
+        return redirect()->route('rides.index')->with('success', 'Ride publicado correctamente.');
     }
 
-    // Formulario de edición
-    public function edit(Ride $ride)
-    {
-        if ($ride->user_id !== Auth::id()) {
-            return redirect()->route('rides.index')->withErrors('No tienes permiso para editar este ride.');
-        }
+    /**
+     * Mostrar formulario de edición
+     * (No usado, la edición es en un modal en la vista index)
+     */
+    // public function edit(Ride $ride)
+    // {
+    //     // Lógica de edición si fuera en una vista separada
+    // }
 
-        $vehiculos = Vehiculo::where('user_id', Auth::id())->get();
-
-        return view('rides.edit', compact('ride', 'vehiculos'));
-    }
-
-    // Actualizar ride
+    /**
+     * Actualizar ride
+     */
     public function update(Request $request, Ride $ride)
     {
-        if ($ride->user_id !== Auth::id()) {
+        $user = Auth::user();
+
+        // 1. Validar permiso de edición
+        if ($ride->user_id !== $user->id) {
             return back()->withErrors('No tienes permiso para editar este ride.');
         }
 
-        // VALIDACIÓN: Volvemos a H:i, que es el formato exacto del input type="time"
+        // 2. Validar bloqueo por reservas activas
+        // 🛑 CORRECCIÓN: Bloquear edición si tiene reservas PENDIENTES (1) o ACEPTADAS (2)
+        if ($ride->reservas()->whereIn('estado', [1, 2])->exists()) {
+             return back()->withErrors('Este ride tiene reservas pendientes o aceptadas y no puede ser modificado.');
+        }
+
+        // 3. Validar datos
         $request->validate([
             'nombre'           => 'required|string|max:100',
             'origen'           => 'required|string|max:100',
             'destino'          => 'required|string|max:100',
             'fecha'            => 'required|date',
-            'hora'             => 'required|date_format:H:i', 
-            'vehiculo_id'      => 'required|exists:vehiculos,id',
-            'costo_por_espacio'=> 'required|numeric|min:0',
-            'espacios'         => 'required|integer|min:1|max:5',
+            'hora'             => 'required|date_format:H:i',
+            'vehiculo_id'      => 'required|exists:vehiculos,id,user_id,'.$user->id,
+            'costo_por_espacio' => 'required|numeric|min:0.01',
+            'espacios'         => 'required|integer|min:1|max:10',
         ]);
 
-        $user = Auth::user();
+        // Formato correcto de hora para guardar en la BD (HH:MM:SS)
+        $hora_formateada = $request->hora . ':00';
 
-        // Vehículo correcto
-        $vehiculo = Vehiculo::where('id', $request->vehiculo_id)
-            ->where('user_id', $user->id)
-            ->first();
-
-        if (!$vehiculo) {
-            return back()->withErrors('El vehículo no es válido para este usuario.');
-        }
-
-        // Capacidad
-        if ($request->espacios > $vehiculo->capacidad) {
-            return back()->withErrors("La capacidad máxima del vehículo es {$vehiculo->capacidad}.");
-        }
-
-        // VALIDAR COSTO (según reglas)
-        $costo = $request->costo_por_espacio;
-        $minimo = 500;
-        $fecha = \Carbon\Carbon::parse($request->fecha);
-        
-        // Formateamos la hora para asegurar H:i y los cálculos
-        $carbon_hora = Carbon::createFromFormat('H:i', $request->hora);
-        $hora_formateada  = $carbon_hora->format('H:i');
-        $h = $carbon_hora->hour; // Obtenemos la hora entera directamente del objeto Carbon
-
-        if ($fecha->isWeekend()) $minimo = max($minimo, 700);
-        if ($h >= 22 || $h <= 5) $minimo = max($minimo, 800); 
-
-        if ($costo < $minimo) {
-            return back()->withErrors("El costo mínimo permitido es ₡{$minimo}.");
-        }
-
-        if ($costo > 30000) {
-            return back()->withErrors("El costo máximo permitido es ₡30 000.");
-        }
-
-        // VALIDAR DUPLICADO solo si cambió vehículo/fecha/hora
-        $claveCambiada =
-            $request->vehiculo_id != $ride->vehiculo_id ||
-            $request->fecha       != $ride->fecha       ||
+        // 4. Validar duplicados si se cambió la clave única (vehiculo_id, fecha, hora)
+        $claveCambiada = 
+            $request->vehiculo_id != $ride->vehiculo_id      ||
+            $request->fecha         != $ride->fecha            ||
             // Comparamos el valor formateado con el valor de la base de datos
             $hora_formateada      != $ride->hora;
 
@@ -219,9 +134,9 @@ class RideController extends Controller
             }
         }
 
-        // ACTUALIZAR (usamos request->except y sobreescribimos 'hora' con el formato H:i)
+        // ACTUALIZAR (usamos request->except y sobreescribimos 'hora' con el formato H:i:s)
         $datos = $request->except(['_method', '_token']); 
-        $datos['hora'] = $hora_formateada; // Sobreescribimos con el formato H:i
+        $datos['hora'] = $hora_formateada; // Sobreescribimos con el formato H:i:s
 
         $ride->update($datos);
 
@@ -233,6 +148,11 @@ class RideController extends Controller
      */
     public function destroy(Ride $ride)
     {
+        // 🛑 CORRECCIÓN: Bloquear eliminación si tiene reservas PENDIENTES (1) o ACEPTADAS (2)
+        if ($ride->reservas()->whereIn('estado', [1, 2])->exists()) {
+            return back()->withErrors('Este ride tiene reservas pendientes o aceptadas y no puede ser eliminado.');
+        }
+
         // Solo el dueño puede eliminarlo
         if ($ride->user_id !== Auth::id()) {
             return redirect()->route('rides.index')
