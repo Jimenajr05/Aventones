@@ -22,19 +22,16 @@
             </div>
         @endif
         
-        {{-- BUSCADOR (CORREGIDO) --}}
-        {{-- action apunta a la ruta de búsqueda del pasajero y usa el método GET para filtros --}}
+        {{-- BUSCADOR --}}
         <form method="GET" action="{{ route('pasajero.buscar_rides') }}" class="mb-6 bg-white p-4 rounded shadow">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                     <label>Origen:</label>
-                    {{-- Mantiene el valor buscado. Añadido ID para JS --}}
                     <input type="text" name="origen" id="input-origen" class="w-full border p-2 rounded" value="{{ $origen_buscado ?? '' }}">
                 </div>
 
                 <div>
                     <label>Destino:</label>
-                    {{-- Mantiene el valor buscado. Añadido ID para JS --}}
                     <input type="text" name="destino" id="input-destino" class="w-full border p-2 rounded" value="{{ $destino_buscado ?? '' }}">
                 </div>
 
@@ -45,17 +42,15 @@
                 </div>
             </div>
             
-            {{-- Campos Ocultos para el Ordenamiento. Se envían con el formulario de búsqueda. --}}
+            {{-- Campos Ocultos para el Ordenamiento --}}
             <input type="hidden" name="orden" value="{{ $orden_actual ?? 'fecha' }}">
             <input type="hidden" name="direccion" value="{{ $direccion_actual ?? 'asc' }}">
         </form>
 
-        {{-- ESTRUCTURA DEL MAPA (AÑADIDO) --}}
-        {{-- Tendrías que definir un estilo para #map en tu CSS, por ejemplo: height: 400px; z-index: 10; --}}
+        {{-- ESTRUCTURA DEL MAPA --}}
         <div id="map-hint" class="mb-4 p-3 bg-blue-50 border-l-4 border-blue-500 text-blue-800 rounded">
             🗺️ Selecciona en el mapa <b>origen</b> y <b>destino</b> dentro de Alajuela.
         </div>
-        {{-- El mapa necesita altura para verse. Sugiero un estilo inline temporal o añadir a tu CSS global --}}
         <div id="map" style="height: 400px; margin-bottom: 24px; z-index: 1;"></div>
         {{-- FIN ESTRUCTURA MAPA --}}
 
@@ -67,12 +62,10 @@
                 <p class="text-gray-600">No hay rides con esos filtros.</p>
             @else
                 
-                {{-- Helper para construir el enlace de ordenamiento... (código omitido por brevedad, es el mismo) --}}
+                {{-- Helper para construir el enlace de ordenamiento --}}
                 @php
-                    // Esta función genera el URL de ordenamiento, conservando filtros de búsqueda.
                     function orderUrl($field, $current_order, $current_dir, $origen, $destino) {
                         $new_dir = 'asc';
-                        // Si ya se está ordenando por este campo, cambiamos la dirección (asc <-> desc)
                         if ($field === ($current_order ?? 'fecha')) {
                             $new_dir = $current_dir === 'asc' ? 'desc' : 'asc';
                         }
@@ -83,7 +76,6 @@
                             'direccion' => $new_dir
                         ]);
                     }
-                    // Valores por defecto para el helper
                     $orden_actual = $orden_actual ?? 'fecha';
                     $direccion_actual = $direccion_actual ?? 'asc';
                     $origen_buscado = $origen_buscado ?? '';
@@ -93,6 +85,11 @@
                 <table class="w-full border-collapse">
                     <thead>
                         <tr class="bg-gray-200">
+                            {{-- Nuevas Columnas (Basado en la imagen) --}}
+                            <th class="p-2 text-left">Chofer</th>
+                            <th class="p-2 text-left">Ride</th>
+                            <th class="p-2 text-left">Vehículo</th>
+                            
                             {{-- ORDENAR POR ORIGEN --}}
                             <th class="p-2">
                                 <a href="{{ orderUrl('origen', $orden_actual, $direccion_actual, $origen_buscado, $destino_buscado) }}">
@@ -109,60 +106,102 @@
                                 </a>
                             </th>
                             
+                            <th class="p-2">Precio</th>
+                            
                             {{-- ORDENAR POR FECHA --}}
                             <th class="p-2">
                                 <a href="{{ orderUrl('fecha', $orden_actual, $direccion_actual, $origen_buscado, $destino_buscado) }}">
-                                    Fecha 
+                                    Fecha/Hora 
                                     @if($orden_actual === 'fecha') @if($direccion_actual === 'asc') ▲ @else ▼ @endif @endif
                                 </a>
                             </th>
                             
-                            <th class="p-2">Hora</th>
-                            <th class="p-2">Costo</th>
                             <th class="p-2">Espacios</th>
-                            <th class="p-2">Acción</th>
+                            <th class="p-2">Estado</th>
+                            {{-- COLUMNA DE ACCIÓN ELIMINADA --}}
                         </tr>
                     </thead>
                     <tbody>
                         @foreach ($rides as $ride)
                             <tr class="border-b">
-                                <td class="p-2">{{ $ride->origen }}</td>
-                                <td class="p-2">{{ $ride->destino }}</td>
-                                <td class="p-2">{{ $ride->fecha }}</td>
-                                <td class="p-2">{{ $ride->hora }}</td>
-                                <td class="p-2">₡{{ number_format($ride->costo_por_espacio, 2) }}</td>
-                                <td class="p-2">{{ $ride->espacios }}</td>
                                 
-                                {{-- LÓGICA AÑADIDA PARA VALIDAR EL BOTÓN... (código omitido por brevedad, es el mismo) --}}
-                                <td class="p-2">
-                                    @if ($ride->reserva_del_pasajero)
-                                        {{-- Ya tiene una reserva activa (Pendiente=1, Aceptada=2) o rechazada (3) --}}
-                                        @if ($ride->reserva_del_pasajero->estado == 1)
-                                            <span class="text-yellow-600 font-semibold">Pendiente</span>
-                                        @elseif ($ride->reserva_del_pasajero->estado == 2)
-                                            {{-- CAMBIO REALIZADO AQUÍ: Dice "Reservado" en lugar de "Aceptada" --}}
-                                            <span class="text-green-600 font-semibold">Reservado</span>
-                                        @elseif ($ride->reserva_del_pasajero->estado == 3)
-                                            {{-- Si está Rechazada (3), se permite reservar de nuevo --}}
-                                            <form action="{{ route('reservas.store') }}" method="POST">
-                                                @csrf
-                                                <input type="hidden" name="ride_id" value="{{ $ride->id }}">
-                                                <button class="bg-green-600 text-white px-3 py-1 rounded">
-                                                    Reservar
-                                                </button>
-                                            </form>
-                                        @endif
+                                {{-- Chofer (nombre y apellido) --}}
+                                <td class="p-2 text-sm whitespace-nowrap">
+                                    {{-- 💡 CORRECCIÓN: Cambiamos 'name' por 'nombre' ya que así se llama en la tabla de usuarios --}}
+                                    {{ $ride->user->nombre ?? 'N/A' }} {{ $ride->user->apellido ?? '' }}
+                                </td>
+
+                                {{-- Nombre del Ride --}}
+                                <td class="p-2 text-sm font-semibold">{{ $ride->nombre }}</td>
+
+                                {{-- Detalle del Vehículo --}}
+                                <td class="p-2 text-sm whitespace-nowrap">
+                                    @if ($ride->vehiculo)
+                                        {{ $ride->vehiculo->marca }} - {{ $ride->vehiculo->modelo }}
                                     @else
-                                        {{-- Si NO hay reserva hecha para este ride --}}
-                                        <form action="{{ route('reservas.store') }}" method="POST">
-                                            @csrf
-                                            <input type="hidden" name="ride_id" value="{{ $ride->id }}">
-                                            <button class="bg-green-600 text-white px-3 py-1 rounded">
-                                                Reservar
-                                            </button>
-                                        </form>
+                                        N/A
                                     @endif
                                 </td>
+
+                                <td class="p-2 text-sm">{{ $ride->origen }}</td>
+                                <td class="p-2 text-sm">{{ $ride->destino }}</td>
+
+                                {{-- Precio (Costo por espacio) --}}
+                                <td class="p-2 text-sm whitespace-nowrap">₡{{ number_format($ride->costo_por_espacio, 2) }}</td>
+
+                                {{-- Fecha/Hora --}}
+                                <td class="p-2 text-sm whitespace-nowrap">
+                                    {{ \Carbon\Carbon::parse($ride->fecha)->format('d/m/Y') }}<br>
+                                    {{ \Carbon\Carbon::parse($ride->hora)->format('H:i') }}
+                                </td>
+
+                                {{-- Espacios --}}
+                                <td class="p-2 text-sm">{{ $ride->espacios }}</td>
+
+                                {{-- Lógica y Columna de Estado (Adaptada para mostrar RESERVADO o PENDIENTE) --}}
+                                @php
+                                    $estadoText = 'N/A';
+                                    $estadoClass = '';
+                                    $reserva = $ride->reserva_del_pasajero;
+
+                                    if ($reserva) {
+                                        switch ($reserva->estado) {
+                                            case 1: $estadoText = 'Pendiente'; $estadoClass = 'text-yellow-600 font-semibold'; break;
+                                            case 2: $estadoText = 'Reservado'; $estadoClass = 'text-green-600 font-semibold'; break;
+                                            case 3: $estadoText = 'Rechazada'; $estadoClass = 'text-red-600'; break;
+                                            case 4: $estadoText = 'Cancelada'; $estadoClass = 'text-gray-500'; break;
+                                            default: $estadoText = 'Error'; $estadoClass = 'text-red-900'; break;
+                                        }
+                                    } else {
+                                        // Si no hay reserva del pasajero, se muestra el botón de Reservar
+                                        // Para mantener el diseño de la tabla, ponemos el botón dentro de la celda de Estado
+                                        if ($ride->espacios > 0) {
+                                            $estadoText = '
+                                                <form action="'.route('reservas.store').'" method="POST" class="inline-block">
+                                                    '.csrf_field().'
+                                                    <input type="hidden" name="ride_id" value="'.$ride->id.'">
+                                                    <button class="bg-green-600 text-white px-3 py-1 text-sm rounded hover:bg-green-700 transition">
+                                                        Reservar
+                                                    </button>
+                                                </form>';
+                                        } else {
+                                            $estadoText = 'Lleno';
+                                            $estadoClass = 'text-gray-500';
+                                        }
+                                    }
+                                @endphp
+                                
+                                {{-- Columna de Estado (Contiene el estado o el botón de Reservar) --}}
+                                <td class="p-2">
+                                    @if($reserva)
+                                        <span class="{{ $estadoClass }}">{{ $estadoText }}</span>
+                                    @else
+                                        {{-- Renderiza el botón o el texto 'Lleno' como HTML --}}
+                                        {!! $estadoText !!}
+                                    @endif
+                                </td>
+
+                                {{-- COLUMNA DE ACCIÓN ELIMINADA --}}
                             </tr>
                         @endforeach
                     </tbody>
@@ -171,8 +210,7 @@
         </div>
     </div>
 
-    {{-- SCRIPTS Y ESTILOS DE LEAFLET (AÑADIDO) --}}
-    {{-- Debes asegurarte de tener el CSS y JS de Leaflet. Aquí se incluyen los enlaces directos. --}}
+    {{-- SCRIPTS Y ESTILOS DE LEAFLET --}}
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
@@ -209,8 +247,6 @@
             const dir = await reverse(lat, lng);
 
             if (!esAlajuela(dir)) {
-                // Para que el color rojo funcione, deberías tener la clase 'map-error' en tu CSS. 
-                // Aquí usamos clases de Tailwind que están en el archivo 'index.blade.php' (sin verlas, hago una aproximación).
                 hint.classList.remove("text-blue-800", "border-blue-500", "bg-blue-50");
                 hint.classList.add("text-red-700", "border-red-600", "bg-red-100");
                 hint.innerHTML = "❌ Solo se permiten ubicaciones dentro de <b>Alajuela</b>";

@@ -27,6 +27,8 @@ class BuscarRideController extends Controller
 
         // 2. Iniciar la consulta al modelo Ride
         $rides = Ride::query()
+            // 💡 CORRECCIÓN: Cargamos la relación 'vehiculo' y el 'user' (chofer) para evitar N/A
+            ->with(['vehiculo', 'user']) 
             // Solo queremos rides que aún tengan espacios disponibles
             ->where('espacios', '>', 0);
 
@@ -52,7 +54,7 @@ class BuscarRideController extends Controller
         $rides = $rides->get();
 
         // -----------------------------------------------------------------
-        // <<< PASO 2: LÓGICA AÑADIDA PARA VALIDAR LA RESERVA DEL PASAJERO >>>
+        // <<< LÓGICA AÑADIDA PARA VALIDAR LA RESERVA DEL PASAJERO >>>
         // -----------------------------------------------------------------
         
         // A. Obtener las reservas del pasajero que NO están Canceladas (estado != 4)

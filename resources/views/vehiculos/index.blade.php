@@ -8,7 +8,6 @@
 
     <div class="py-10 max-w-6xl mx-auto">
 
-        <!-- Mensajes -->
         @if (session('success'))
             <div class="mb-4 bg-green-100 text-green-800 p-3 rounded">
                 {{ session('success') }}
@@ -21,10 +20,8 @@
             </div>
         @endif
 
-        <!-- Contenedor principal -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
 
-            <!-- FORMULARIO -->
             <div class="p-6 bg-white rounded-lg shadow">
 
                 <h3 class="text-xl font-bold mb-4">Registrar nuevo vehículo</h3>
@@ -87,7 +84,6 @@
             </div>
 
 
-            <!-- TABLA DE VEHÍCULOS -->
             <div class="p-6 bg-white rounded-lg shadow">
 
                 <h3 class="text-xl font-bold mb-4">Mis Vehículos Registrados</h3>
@@ -95,65 +91,58 @@
                 @if ($vehiculos->isEmpty())
                     <p class="text-gray-500">No tienes vehículos registrados.</p>
                 @else
-                    <div class="overflow-x-auto">
-                        <table class="w-full border-collapse">
-                            <thead>
-                                <tr class="bg-gray-200 text-left">
-                                    <th class="p-2">Foto</th>
-                                    <th class="p-2">Marca</th>
-                                    <th class="p-2">Modelo</th>
-                                    <th class="p-2">Placa</th>
-                                    <th class="p-2">Color</th>
-                                    <th class="p-2">Año</th>
-                                    <th class="p-2">Capacidad</th>
-                                    <th class="p-2">Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-
-                                @foreach ($vehiculos as $vehiculo)
-                                <tr class="border-b">
-                                    <td class="p-2">
+                    <div class="space-y-4">
+                        @foreach ($vehiculos as $vehiculo)
+                            
+                            {{-- INICIO TARJETA DE VEHÍCULO (CORREGIDO: Usando justify-between para alinear los botones a la derecha) --}}
+                            <div class="border p-4 rounded-lg shadow-sm flex justify-between items-start space-x-4">
+                                
+                                <div class="flex space-x-4 flex-grow"> {{-- Contenedor para Imagen y Detalles --}}
+                                    <div class="flex-shrink-0">
                                         @if ($vehiculo->fotografia)
                                             <img src="{{ asset('storage/'.$vehiculo->fotografia) }}"
-                                                 class="w-20 h-20 object-cover rounded">
+                                                 class="w-24 h-24 object-cover rounded-md">
                                         @else
-                                            <span class="text-gray-500">Sin imagen</span>
+                                            <span class="text-gray-500 text-sm w-24 h-24 flex items-center justify-center border rounded-md">Sin imagen</span>
                                         @endif
-                                    </td>
+                                    </div>
 
-                                    <td class="p-2">{{ $vehiculo->marca }}</td>
-                                    <td class="p-2">{{ $vehiculo->modelo }}</td>
-                                    <td class="p-2">{{ $vehiculo->placa }}</td>
-                                    <td class="p-2">{{ $vehiculo->color }}</td>
-                                    <td class="p-2">{{ $vehiculo->anio }}</td>
-                                    <td class="p-2">{{ $vehiculo->capacidad }}</td>
+                                    <div class="flex-grow">
+                                        <p class="text-lg font-bold">{{ $vehiculo->marca }} {{ $vehiculo->modelo }}</p>
+                                        
+                                        <div class="text-sm text-gray-700 space-y-0.5 mt-1">
+                                            <p><span class="font-semibold">Placa:</span> {{ $vehiculo->placa }}</p>
+                                            <p><span class="font-semibold">Color:</span> {{ $vehiculo->color }}</p>
+                                            <p><span class="font-semibold">Año:</span> {{ $vehiculo->anio }}</p>
+                                            <p><span class="font-semibold">Capacidad:</span> {{ $vehiculo->capacidad }} personas</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                {{-- SECCIÓN DE BOTONES DE ACCIÓN (Alineado a la derecha sin ml-auto) --}}
+                                <div class="flex-shrink-0 flex flex-col space-y-4"> {{-- Se quitó ml-auto --}}
+                                    
+                                    <a href="#" onclick="openEditModal({{ $vehiculo }})"
+                                       class="text-sm font-semibold px-4 py-2 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-center whitespace-nowrap">
+                                        ✏️ Editar
+                                    </a>
 
-                                    <td class="p-2">
+                                    <form action="{{ route('vehiculos.destroy', $vehiculo) }}"
+                                          method="POST" onsubmit="return confirm('¿Eliminar este vehículo?')"
+                                          class="m-0">
+                                        @csrf
+                                        @method('DELETE')
 
-                                        <!-- EDITAR -->
-                                        <a href="#" onclick="openEditModal({{ $vehiculo }})"
-                                           class="text-blue-600 font-semibold hover:underline block">
-                                            ✏️ Editar
-                                        </a>
+                                        <button type="submit"
+                                                class="text-sm font-semibold px-4 py-2 rounded-full bg-red-600 hover:bg-red-700 text-white text-center whitespace-nowrap">
+                                            🗑️ Eliminar
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                            {{-- FIN TARJETA DE VEHÍCULO --}}
 
-                                        <!-- ELIMINAR -->
-                                        <form action="{{ route('vehiculos.destroy', $vehiculo) }}"
-                                              method="POST" onsubmit="return confirm('¿Eliminar este vehículo?')">
-                                            @csrf
-                                            @method('DELETE')
-
-                                            <button class="text-red-600 font-semibold hover:underline mt-1">
-                                                🗑️ Eliminar
-                                            </button>
-                                        </form>
-
-                                    </td>
-                                </tr>
-                                @endforeach
-
-                            </tbody>
-                        </table>
+                        @endforeach
                     </div>
                 @endif
 
@@ -162,7 +151,6 @@
         </div>
     </div>
 
-    <!-- MODAL DE EDICIÓN (Tailwind + JS simple) -->
     <div id="editModal"
          class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center">
 
@@ -232,7 +220,6 @@
 
     </div>
 
-    <!-- SCRIPT DEL MODAL DE EDICIÓN -->
     <script>
         function openEditModal(vehiculo) {
             document.getElementById('edit_marca').value = vehiculo.marca;
@@ -242,8 +229,11 @@
             document.getElementById('edit_anio').value = vehiculo.anio;
             document.getElementById('edit_capacidad').value = vehiculo.capacidad;
 
+            // Asegurar que el color seleccionado se muestre correctamente en el modal
+            document.getElementById('edit_color').value = vehiculo.color;
+
             document.getElementById('editForm').action =
-                '/vehiculos/' + vehiculo.id;
+                '{{ url('vehiculos') }}/' + vehiculo.id; 
 
             document.getElementById('editModal').classList.remove('hidden');
             document.getElementById('editModal').classList.add('flex');

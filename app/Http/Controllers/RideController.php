@@ -38,7 +38,7 @@ class RideController extends Controller
     {
         $user = Auth::user();
 
-        // VALIDACIÓN: Volvemos a H:i, que es el formato exacto del input type="time"
+        // VALIDACIÓN DE DATOS BÁSICOS
         $request->validate([
             'nombre'           => 'required|string|max:100',
             'origen'           => 'required|string|max:100',
@@ -47,13 +47,22 @@ class RideController extends Controller
             'hora'             => 'required|date_format:H:i', // Espera 09:30 o 14:45
             'vehiculo_id'      => 'required|exists:vehiculos,id,user_id,'.$user->id, // Debe ser su vehículo
             'costo_por_espacio' => 'required|numeric|min:0.01',
-            'espacios'         => 'required|integer|min:1|max:10', // Máximo 10 asientos
+            'espacios'         => 'required|integer|min:1', // Quitamos el max:10
         ]);
+
+        // 1. 🛑 NUEVA VALIDACIÓN: Capacidad Máxima de Espacios (Capacidad del vehículo - 1)
+        $vehiculo = Vehiculo::find($request->vehiculo_id);
+        $max_espacios_pasajeros = $vehiculo->capacidad - 1;
+
+        if ($request->espacios > $max_espacios_pasajeros) {
+             return back()->withInput()->withErrors('El número de espacios disponibles no puede exceder la capacidad máxima de pasajeros de este vehículo ('.$max_espacios_pasajeros.').');
+        }
+        // ------------------------------------
 
         // Formato correcto de hora para guardar en la BD (HH:MM:SS)
         $hora_formateada = $request->hora . ':00';
 
-        // VALIDACIÓN DE DUPLICADOS (un chofer no puede tener dos rides con el mismo vehículo, fecha y hora)
+        // 2. VALIDACIÓN DE DUPLICADOS (un chofer no puede tener dos rides con el mismo vehículo, fecha y hora)
         $duplicado = Ride::where('user_id', $user->id)
             ->where('vehiculo_id', $request->vehiculo_id)
             ->where('fecha', $request->fecha)
@@ -64,6 +73,7 @@ class RideController extends Controller
             return back()->withInput()->withErrors('Ya existe un ride con ese vehículo en la misma fecha y hora.');
         }
 
+        // 3. CREACIÓN
         Ride::create(array_merge($request->all(), [
             'user_id' => $user->id,
             'hora' => $hora_formateada, // Sobreescribimos con el formato H:i:s
@@ -94,12 +104,12 @@ class RideController extends Controller
         }
 
         // 2. Validar bloqueo por reservas activas
-        // 🛑 CORRECCIÓN: Bloquear edición si tiene reservas PENDIENTES (1) o ACEPTADAS (2)
+        // 🛑 Bloquear edición si tiene reservas PENDIENTES (1) o ACEPTADAS (2)
         if ($ride->reservas()->whereIn('estado', [1, 2])->exists()) {
              return back()->withErrors('Este ride tiene reservas pendientes o aceptadas y no puede ser modificado.');
         }
 
-        // 3. Validar datos
+        // 3. Validar datos básicos
         $request->validate([
             'nombre'           => 'required|string|max:100',
             'origen'           => 'required|string|max:100',
@@ -108,17 +118,25 @@ class RideController extends Controller
             'hora'             => 'required|date_format:H:i',
             'vehiculo_id'      => 'required|exists:vehiculos,id,user_id,'.$user->id,
             'costo_por_espacio' => 'required|numeric|min:0.01',
-            'espacios'         => 'required|integer|min:1|max:10',
+            'espacios'         => 'required|integer|min:1', // Quitamos el max:10
         ]);
+
+        // 4. 🛑 NUEVA VALIDACIÓN: Capacidad Máxima de Espacios
+        $vehiculo = Vehiculo::find($request->vehiculo_id);
+        $max_espacios_pasajeros = $vehiculo->capacidad - 1;
+
+        if ($request->espacios > $max_espacios_pasajeros) {
+             return back()->withInput()->withErrors('El número de espacios disponibles no puede exceder la capacidad máxima de pasajeros de este vehículo ('.$max_espacios_pasajeros.').');
+        }
+        // ------------------------------------
 
         // Formato correcto de hora para guardar en la BD (HH:MM:SS)
         $hora_formateada = $request->hora . ':00';
 
-        // 4. Validar duplicados si se cambió la clave única (vehiculo_id, fecha, hora)
+        // 5. Validar duplicados si se cambió la clave única (vehiculo_id, fecha, hora)
         $claveCambiada = 
             $request->vehiculo_id != $ride->vehiculo_id      ||
             $request->fecha         != $ride->fecha            ||
-            // Comparamos el valor formateado con el valor de la base de datos
             $hora_formateada      != $ride->hora;
 
         if ($claveCambiada) {
@@ -134,7 +152,7 @@ class RideController extends Controller
             }
         }
 
-        // ACTUALIZAR (usamos request->except y sobreescribimos 'hora' con el formato H:i:s)
+        // 6. ACTUALIZAR (usamos request->except y sobreescribimos 'hora' con el formato H:i:s)
         $datos = $request->except(['_method', '_token']); 
         $datos['hora'] = $hora_formateada; // Sobreescribimos con el formato H:i:s
 
@@ -148,7 +166,7 @@ class RideController extends Controller
      */
     public function destroy(Ride $ride)
     {
-        // 🛑 CORRECCIÓN: Bloquear eliminación si tiene reservas PENDIENTES (1) o ACEPTADAS (2)
+        // 🛑 Bloquear eliminación si tiene reservas PENDIENTES (1) o ACEPTADAS (2)
         if ($ride->reservas()->whereIn('estado', [1, 2])->exists()) {
             return back()->withErrors('Este ride tiene reservas pendientes o aceptadas y no puede ser eliminado.');
         }
