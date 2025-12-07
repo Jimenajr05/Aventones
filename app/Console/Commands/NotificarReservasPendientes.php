@@ -26,7 +26,7 @@ class NotificarReservasPendientes extends Command
 
         if ($reservasPendientes->isEmpty()) {
             $this->info("No hay reservas pendientes para notificar.");
-            return Command::SUCCESS;
+            return 2;
         }
         
         // 1. Agrupar las reservas por el correo del chofer

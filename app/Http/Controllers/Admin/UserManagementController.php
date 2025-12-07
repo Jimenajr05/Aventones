@@ -34,7 +34,7 @@ class UserManagementController extends Controller
                     $fail('El administrador debe ser mayor de 18 años.');
                 }
             }],
-            'telefono' => 'required|string|max:20',
+            'telefono' => 'required|string|max:20|unique:users,telefono',
             'password' => 'required|string|min:8|confirmed',
         ]);
 

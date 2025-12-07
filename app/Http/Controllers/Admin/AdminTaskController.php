@@ -29,13 +29,18 @@ class AdminTaskController extends Controller
             $exitCode = Artisan::call('reservas:notificar', ['minutos' => $minutos]);
 
             if ($exitCode === 0) {
-                 return Redirect::route($redirectRoute) 
-                    ->with('success', "✅ Comando de recordatorio de reservas ejecutado con éxito. Se buscaron y notificaron reservas con más de {$minutos} minuto de antigüedad.");
-            } else {
-                 Log::error('Artisan Command failed: reservas:notificar returned exit code ' . $exitCode);
-                 return Redirect::route($redirectRoute)
-                    ->with('error', '❌ El script no se pudo ejecutar correctamente. Revisa los logs.');
+                return Redirect::route($redirectRoute)
+                    ->with('success', "Se notificaron reservas con más de {$minutos} minuto(s).");
             }
+
+            if ($exitCode === 2) {
+                return Redirect::route($redirectRoute)
+                    ->with('success', "No se encontraron reservas pendientes con más de {$minutos} minuto(s).");
+            }
+
+            return Redirect::route($redirectRoute)
+            ->with('error', '❌ Ocurrió un error al ejecutar el comando. Revisa los logs.');
+
             
         } catch (\Exception $e) {
             Log::error('Excepción al ejecutar comando Artisan: ' . $e->getMessage());
