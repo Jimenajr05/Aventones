@@ -140,7 +140,6 @@
                                 <th class="p-2">Fecha y Hora</th>
                                 <th class="p-2">Espacios</th>
                                 <th class="p-2">Estado</th>
-                                <th class="p-2">Acciones</th>
                             </tr>
                         </thead>
 
@@ -181,11 +180,6 @@
                                         @else
                                             <span class="text-gray-500">Desconocido</span>
                                         @endif
-                                    </td>
-
-                                    {{-- Botones --}}
-                                    <td class="p-2">
-                                        <span class="text-gray-500">Sin acciones</span>
                                     </td>
 
                                 </tr>

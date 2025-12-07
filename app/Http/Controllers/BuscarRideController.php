@@ -42,13 +42,21 @@ class BuscarRideController extends Controller
         }
 
         // 4. Aplicar el ordenamiento
-        if (in_array($orden, ['fecha', 'origen', 'destino'])) {
+        if (in_array($orden, ['fecha', 'origen', 'destino', 'precio', 'espacios'])) {
             $dir = strtolower($direccion) === 'desc' ? 'desc' : 'asc';
-            $rides->orderBy($orden, $dir);
+
+            // El campo en BD es 'costo_por_espacio', no 'precio'
+            if ($orden === 'precio') {
+                $rides->orderBy('costo_por_espacio', $dir);
+            } else {
+                $rides->orderBy($orden, $dir);
+            }
+
         } else {
-            // Orden por defecto si no se especifica o es inválido
+            // Orden por defecto
             $rides->orderBy('fecha', 'asc');
         }
+
 
         // 5. Ejecutar la consulta y obtener los resultados
         $rides = $rides->get();
