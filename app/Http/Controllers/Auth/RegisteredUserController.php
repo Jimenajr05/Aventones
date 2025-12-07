@@ -36,12 +36,29 @@ class RegisteredUserController extends Controller
             'apellido' => ['required', 'string', 'max:255'],
             'cedula' => ['required', 'string', 'max:20', 'unique:users,cedula'],
             'fecha_nacimiento' => ['required', 'date'],
-            'telefono' => ['required', 'string', 'max:20'],
+            'telefono' => ['required', 'string', 'max:20', 'unique:users,telefono'],
             'foto' => ['nullable', 'image', 'max:2048'],
             'role_id' => ['required', 'in:3,4'], // 3 = Chofer, 4 = Pasajero
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users,email'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
+
+        // ===============================
+        // VALIDACIÓN DE EDAD SEGÚN ROL
+        // ===============================
+        $edad = \Carbon\Carbon::parse($request->fecha_nacimiento)->age;
+
+        if ($request->role_id == 4 && $edad < 13) {
+            return back()
+                ->withErrors(['fecha_nacimiento' => 'Para registrarse como pasajero debe tener al menos 13 años.'])
+                ->withInput();
+        }
+
+        if ($request->role_id == 3 && $edad < 18) {
+            return back()
+                ->withErrors(['fecha_nacimiento' => 'Para registrarse como chofer debe ser mayor de edad.'])
+                ->withInput();
+        }
 
         // Subir la foto
         $fotoPath = null;
