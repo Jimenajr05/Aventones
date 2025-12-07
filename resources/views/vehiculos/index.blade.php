@@ -93,7 +93,7 @@
                         <div class="mt-4 flex justify-center">
                             <button type="submit"
                                 class="bg-indigo-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-indigo-700 shadow transition duration-300">
-                                🚗 Registrar Vehículo
+                                Registrar Vehículo
                             </button>
                         </div>
                     </form>

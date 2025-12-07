@@ -90,7 +90,7 @@
                                                   method="POST">
                                                 @csrf
                                                 <button class="bg-green-600 text-white px-3 py-1 rounded">
-                                                    ✔ Aceptar
+                                                    Aceptar
                                                 </button>
                                             </form>
 
@@ -99,7 +99,7 @@
                                                   method="POST">
                                                 @csrf
                                                 <button class="bg-red-600 text-white px-3 py-1 rounded">
-                                                    ✖ Rechazar
+                                                    Rechazar
                                                 </button>
                                             </form>
 

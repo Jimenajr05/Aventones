@@ -102,7 +102,7 @@
                                                     onsubmit="return confirm('¿Está seguro de que desea cancelar esta reserva?')">
 
                                                 @csrf
-                                                <button class="text-red-600 hover:text-red-800 underline font-medium">
+                                                <button class="bg-red-600 text-white px-3 py-1 rounded">
                                                     Cancelar
                                                 </button>
                                             </form>
