@@ -63,7 +63,7 @@ class RideController extends Controller
         $max_espacios_pasajeros = $vehiculo->capacidad - 1;
 
         if ($request->espacios > $max_espacios_pasajeros) {
-             return back()->withInput()->withErrors('El número de espacios disponibles no puede exceder la capacidad máxima de pasajeros de este vehículo ('.$max_espacios_pasajeros.').');
+             return back()->withInput()->withErrors("No puedes asignar más espacios de los permitidos. La capacidad máxima de este vehículo es de {$max_espacios_pasajeros} pasajeros.");
         }
         // ------------------------------------
 
@@ -123,9 +123,8 @@ class RideController extends Controller
         $max_espacios_pasajeros = $vehiculo->capacidad - 1;
 
         if ($request->espacios > $max_espacios_pasajeros) {
-             return back()->withInput()->withErrors('El número de espacios disponibles no puede exceder la capacidad máxima de pasajeros de este vehículo ('.$max_espacios_pasajeros.').');
+             return back()->withInput()->withErrors("No puedes asignar más espacios de los permitidos. La capacidad máxima de este vehículo es de {$max_espacios_pasajeros} pasajeros.");
         }
-        // ------------------------------------
 
         // Formato correcto de hora para guardar en la BD (HH:MM:SS)
         $hora_formateada = $request->hora . ':00';

@@ -17,7 +17,7 @@
 
         @if ($errors->any())
             <div class="mb-4 bg-red-100 text-red-700 p-3 rounded-lg">
-                <strong>Error:</strong> {{ $errors->first() }}
+                ❌ {{ $errors->first() }}
             </div>
         @endif
 
@@ -31,7 +31,7 @@
                 <h3 class="text-2xl font-bold text-center mb-6">Registrar nuevo vehículo</h3>
 
                 <div class="max-w-4xl mx-auto">
-                    <form action="{{ route('vehiculos.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
+                    <form action="{{ route('vehiculos.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6" novalidate>
                         @csrf
 
                         {{-- Fila 1 --}}
@@ -149,7 +149,7 @@
                                     </button>
 
                                     <form action="{{ route('vehiculos.destroy', $vehiculo) }}"
-                                          method="POST" onsubmit="return confirm('¿Eliminar este vehículo?')">
+                                          method="POST" onsubmit="return confirm('¿Eliminar este vehículo?')" novalidate>
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit"
@@ -182,7 +182,7 @@
 
             <h3 class="text-xl font-bold text-center mb-4">Editar Vehículo</h3>
 
-            <form id="editForm" method="POST" enctype="multipart/form-data" class="space-y-4">
+            <form id="editForm" method="POST" enctype="multipart/form-data" class="space-y-4" novalidate>
                 @csrf
                 @method('PATCH')
 

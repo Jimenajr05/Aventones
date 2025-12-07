@@ -17,7 +17,7 @@
 
         @if ($errors->any())
             <div class="mb-4 bg-red-100 text-red-700 p-3 rounded">
-                <strong>Error:</strong> {{ $errors->first() }}
+                ❌ {{ $errors->first() }}
             </div>
         @endif
 
@@ -31,7 +31,7 @@
 
                 <div class="max-w-4xl mx-auto">
 
-                    <form action="{{ route('rides.store') }}" method="POST" class="space-y-6">
+                    <form action="{{ route('rides.store') }}" method="POST" class="space-y-6" novalidate>
                         @csrf
 
                         {{-- FILA 1: Nombre, Origen, Destino, Hora --}}
@@ -198,7 +198,7 @@
                                     
                                     <form action="{{ route('rides.destroy', $ride->id) }}" method="POST"
                                         onsubmit="return confirm('¿Estás seguro de que deseas eliminar este ride? Si tiene reservas activas, el sistema te lo impedirá.');"
-                                        class="m-0">
+                                        class="m-0" novalidate>
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit"
@@ -216,7 +216,7 @@
 
                                     <form action="{{ route('rides.destroy', $ride->id) }}" method="POST"
                                         onsubmit="return confirm('¿Estás seguro de que deseas eliminar este ride? Esta acción es irreversible.');"
-                                        class="m-0">
+                                        class="m-0" novalidate>
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit"
@@ -247,7 +247,7 @@
             
             <h3 class="text-xl font-bold mb-4">Editar Ride</h3>
 
-            <form id="editRideForm" method="POST" action="" class="space-y-4">
+            <form id="editRideForm" method="POST" action="" class="space-y-4" novalidate>
                 @csrf
                 @method('PATCH') 
                 
