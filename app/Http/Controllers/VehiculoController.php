@@ -76,13 +76,33 @@ class VehiculoController extends Controller
      */
     public function destroy(Vehiculo $vehiculo)
     {
-        // Validar que el vehículo pertenece al usuario logueado
+        // Validar dueño del vehículo
         if ($vehiculo->user_id !== auth()->id()) {
             return redirect()->route('vehiculos.index')
                 ->withErrors('No tienes permiso para eliminar este vehículo.');
         }
 
-        // Borrar la foto si existe
+        // 1️⃣ Revisar si tiene rides con reservas activas (pendiente=1, aceptada=2)
+        $tieneReservasActivas = $vehiculo->rides()
+            ->whereHas('reservas', function($q) {
+                $q->whereIn('estado', [1, 2]);
+            })
+            ->exists();
+
+        if ($tieneReservasActivas) {
+            return redirect()->route('vehiculos.index')
+                ->withErrors('No puedes eliminar este vehículo porque tiene rides con reservas activas.');
+        }
+
+        // 2️⃣ Si NO hay reservas activas, revisar si tiene rides asociados
+        $tieneRides = $vehiculo->rides()->exists();
+
+        if ($tieneRides) {
+            return redirect()->route('vehiculos.index')
+                ->withErrors('Este vehículo tiene rides asociados y no puede eliminarse.');
+        }
+
+        // 3️⃣ Si no tiene rides → permitir eliminar
         if ($vehiculo->fotografia) {
             Storage::disk('public')->delete($vehiculo->fotografia);
         }
@@ -92,6 +112,7 @@ class VehiculoController extends Controller
         return redirect()->route('vehiculos.index')
             ->with('success', 'Vehículo eliminado correctamente.');
     }
+
 
     public function update(Request $request, Vehiculo $vehiculo)
     {
