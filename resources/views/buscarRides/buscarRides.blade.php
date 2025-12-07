@@ -49,9 +49,11 @@
                         <label class="font-semibold">Ordenar por:</label>
                         <select name="orden"
                                 class="w-full border p-2 rounded-lg">
-                            <option value="fecha" {{ ($orden_actual ?? '') === 'fecha' ? 'selected' : '' }}>Día y Hora</option>
+                            <option value="fecha" {{ ($orden_actual ?? '') === 'fecha' ? 'selected' : '' }}>Fecha y Hora</option>
                             <option value="precio" {{ ($orden_actual ?? '') === 'precio' ? 'selected' : '' }}>Costo</option>
                             <option value="espacios" {{ ($orden_actual ?? '') === 'espacios' ? 'selected' : '' }}>Espacios</option>
+                            <option value="origen" {{ ($orden_actual ?? '') === 'origen' ? 'selected' : '' }}>Origen</option>
+                            <option value="destino" {{ ($orden_actual ?? '') === 'destino' ? 'selected' : '' }}>Destino</option>
                         </select>
                     </div>
                 </div>
