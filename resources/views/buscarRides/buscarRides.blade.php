@@ -193,7 +193,7 @@
                                     <td class="p-3 text-sm whitespace-nowrap">
                                         {{ \Carbon\Carbon::parse($ride->fecha)->format('d/m/Y') }}
                                         <br>
-                                        {{ \Carbon\Carbon::parse($ride->hora)->format('H:i') }}
+                                        {{ \Carbon\Carbon::parse($ride->hora)->format('H:i A') }}
                                     </td>
 
                                     <td class="p-3 text-sm">{{ $ride->espacios }}</td>
@@ -204,6 +204,7 @@
                                             $reserva = $ride->reserva_del_pasajero;
                                         @endphp
 
+                                        {{-- Si el pasajero YA tiene una reserva en este ride --}}
                                         @if($reserva)
                                             <span class="font-semibold
                                                 @if($reserva->estado == 1) text-yellow-600
@@ -212,23 +213,28 @@
                                                 @else text-gray-500 @endif">
                                                 {{ ['','Pendiente','Reservado','Rechazada','Cancelada'][$reserva->estado] }}
                                             </span>
+
+                                        {{-- NUEVO: Si *otro* pasajero ya reservó este ride --}}
+                                        @elseif(!empty($ride->alguien_reservo) && $ride->alguien_reservo === true)
+                                            <span class="bg-gray-400 text-white px-4 py-2 rounded-lg text-sm shadow">
+                                                Reservado
+                                            </span>
+
+                                        {{-- Si nadie ha reservado y aún hay espacios --}}
+                                        @elseif ($ride->espacios > 0)
+                                            <form action="{{ route('reservas.store') }}" method="POST">
+                                                @csrf
+                                                <input type="hidden" name="ride_id" value="{{ $ride->id }}">
+                                                <button class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm shadow">
+                                                    Reservar
+                                                </button>
+                                            </form>
+
+                                        {{-- Lleno --}}
                                         @else
-
-                                            @if ($ride->espacios > 0)
-                                                <form action="{{ route('reservas.store') }}" method="POST">
-                                                    @csrf
-                                                    <input type="hidden" name="ride_id" value="{{ $ride->id }}">
-                                                    <button class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm shadow">
-                                                        Reservar
-                                                    </button>
-                                                </form>
-                                            @else
-                                                <span class="text-gray-500">Lleno</span>
-                                            @endif
-
+                                            <span class="text-gray-500">Lleno</span>
                                         @endif
                                     </td>
-
                                 </tr>
                             @endforeach
                         </tbody>

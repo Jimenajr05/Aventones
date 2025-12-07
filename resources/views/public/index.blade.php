@@ -70,7 +70,7 @@
                                     <td>{{ $ride->origen }}</td>
                                     <td>{{ $ride->destino }}</td>
                                     <td>{{ $ride->fecha }}</td>
-                                    <td>{{ $ride->hora }}</td>
+                                    <td>{{ \Carbon\Carbon::parse($ride->hora)->format('h:i A') }}</td>
                                     {{-- Acceder a marca y modelo del objeto vehículo --}}
                                     <td>{{ $ride->vehiculo->marca ?? 'N/A' }} {{ $ride->vehiculo->modelo ?? '' }}</td>
                                     

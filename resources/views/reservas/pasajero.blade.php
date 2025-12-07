@@ -70,14 +70,14 @@
 
                                         {{-- Precio --}}
                                         <td class="p-2 whitespace-nowrap">
-                                            ${{ number_format($res->ride->costo_por_espacio, 2) }}
+                                            ₡{{ number_format($res->ride->costo_por_espacio, 2) }}
                                         </td>
 
                                         {{-- Fecha/Hora --}}
                                         <td class="p-2 whitespace-nowrap">
                                             {{ \Carbon\Carbon::parse($res->ride->fecha)->format('d/m/Y') }}
                                             <br>
-                                            {{ $res->ride->hora }}
+                                            {{ \Carbon\Carbon::parse($res->ride->hora)->format('h:i A') }}
                                         </td>
 
                                         {{-- Espacios --}}
@@ -170,14 +170,14 @@
 
                                         {{-- Precio --}}
                                         <td class="p-2 whitespace-nowrap">
-                                            ${{ number_format($res->ride->costo_por_espacio, 2) }}
+                                            ₡{{ number_format($res->ride->costo_por_espacio, 2) }}
                                         </td>
 
                                         {{-- Fecha/Hora --}}
                                         <td class="p-2 whitespace-nowrap">
                                             {{ \Carbon\Carbon::parse($res->ride->fecha)->format('d/m/Y') }}
                                             <br>
-                                            {{ $res->ride->hora }}
+                                            {{ \Carbon\Carbon::parse($res->ride->hora)->format('h:i A') }}
                                         </td>
 
                                         {{-- Espacios --}}

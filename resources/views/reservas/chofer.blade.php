@@ -39,7 +39,7 @@
                             <tr class="bg-gray-200 text-left">
                                 <th class="p-2">Pasajero</th>
                                 <th class="p-2">Ride</th>
-                                <th class="p-2">Fecha</th>
+                                <th class="p-2">Fecha y Hora</th>
                                 <th class="p-2">Espacios</th>
                                 <th class="p-2">Estado</th>
                                 <th class="p-2">Acciones</th>
@@ -64,7 +64,7 @@
                                     {{-- Fecha --}}
                                     <td class="p-2">
                                         {{ \Carbon\Carbon::parse($reserva->ride->fecha)->format('d/m/Y') }}
-                                        - {{ $reserva->ride->hora }}
+                                        - {{ \Carbon\Carbon::parse($reserva->ride->hora)->format('h:i A') }}
                                     </td>
 
                                     {{-- Espacios --}}
@@ -137,7 +137,7 @@
                             <tr class="bg-gray-200 text-left">
                                 <th class="p-2">Pasajero</th>
                                 <th class="p-2">Ride</th>
-                                <th class="p-2">Fecha</th>
+                                <th class="p-2">Fecha y Hora</th>
                                 <th class="p-2">Espacios</th>
                                 <th class="p-2">Estado</th>
                                 <th class="p-2">Acciones</th>
@@ -162,7 +162,7 @@
                                     {{-- Fecha --}}
                                     <td class="p-2">
                                         {{ \Carbon\Carbon::parse($reserva->ride->fecha)->format('d/m/Y') }}
-                                        - {{ $reserva->ride->hora }}
+                                        - {{ \Carbon\Carbon::parse($reserva->ride->hora)->format('h:i A') }}
                                     </td>
 
                                     {{-- Espacios --}}

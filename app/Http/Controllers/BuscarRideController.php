@@ -73,6 +73,17 @@ class BuscarRideController extends Controller
         // <<< FIN LÓGICA AÑADIDA >>>
         // -----------------------------------------------------------------
 
+        $rides = $rides->map(function ($ride) {
+            // Ver si ALGUIEN ya reservó este ride (pendiente=1 o aceptada=2)
+            $hayReserva = \App\Models\Reserva::where('ride_id', $ride->id)
+                ->whereIn('estado', [1, 2])
+                ->exists();
+
+            $ride->alguien_reservo = $hayReserva;
+
+            return $ride;
+        });
+
 
         // 6. Retornar la vista con los rides
         // 3. CORRECCIÓN: Se usa 'buscarRides.buscarRides' por la estructura de carpetas
