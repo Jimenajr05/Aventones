@@ -163,15 +163,28 @@
                                 <p class="text-sm text-gray-600">
                                     <span class="font-semibold">Ruta:</span> {{ $ride->origen }} → {{ $ride->destino }}
                                 </p>
+                                
                                 <p class="text-sm text-gray-600">
                                     <span class="font-semibold">Fecha:</span> {{ \Carbon\Carbon::parse($ride->fecha)->format('d/m/Y') }} 
                                     | <span class="font-semibold">Hora:</span> {{ \Carbon\Carbon::parse($ride->hora)->format('H:i') }}
                                 </p>
                                 
                                 <p class="text-sm text-gray-600">
-                                    <span class="font-semibold">Costo:</span> ₡{{ number_format($ride->costo_por_espacio, 2) }}
-                                    | <span class="font-semibold">Espacios:</span> 
+
+                                    @if ($ride->vehiculo)
+                                        <span class="font-semibold">Vehículo:</span>
+                                        {{ $ride->vehiculo->marca }} {{ $ride->vehiculo->modelo }} ({{ $ride->vehiculo->placa }})
+                                        <span class="mx-1">|</span>
+                                    @endif
+
+                                    <span class="font-semibold">Costo:</span>
+                                    ₡{{ number_format($ride->costo_por_espacio, 2) }}
+
+                                    <span class="mx-1">|</span>
+
+                                    <span class="font-semibold">Espacios:</span>
                                     {{ $ride->espacios - $espaciosReservados }} / {{ $ride->espacios }}
+
                                 </p>
                             </div>
                             
