@@ -73,7 +73,7 @@
                     <button type="submit" id="reminder-button"
                        class="inline-block py-2 px-5 rounded-full text-white font-semibold 
                               bg-orange-500 transition duration-300 hover:bg-orange-600 w-full">
-                        Ejecutar Script
+                        Notificar
                     </button>
                     
                     {{-- MENSAJE DE CARGA OCULTO --}}

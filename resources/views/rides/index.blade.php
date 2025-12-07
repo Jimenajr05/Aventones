@@ -21,96 +21,117 @@
             </div>
         @endif
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {{-- TODO APILADO COMO EN EL DISEÑO --}}
+        <div class="space-y-10">
 
             {{-- 1. FORMULARIO PARA CREAR --}}
-            <div class="p-6 bg-white rounded-lg shadow">
-                
-                <div class="max-w-lg mx-auto"> 
-                
-                    <h3 class="text-xl font-bold mb-4">Crear nuevo ride</h3>
+            <div class="bg-white rounded-2xl shadow-xl p-8">
 
-                    <form action="{{ route('rides.store') }}" method="POST" class="space-y-4">
+                <h3 class="text-2xl font-bold text-center mb-6">Crear nuevo ride</h3>
+
+                <div class="max-w-4xl mx-auto">
+
+                    <form action="{{ route('rides.store') }}" method="POST" class="space-y-6">
                         @csrf
 
-                        <div>
-                            <label class="font-semibold">Nombre del ride:</label>
-                            <input type="text" name="nombre" value="{{ old('nombre') }}"
-                                class="w-full border p-2 rounded" required>
-                        </div>
-
-                        <div>
-                            <label class="font-semibold">Origen:</label>
-                            <input type="text" name="origen" value="{{ old('origen') }}"
-                                class="w-full border p-2 rounded" required>
-                        </div>
-
-                        <div>
-                            <label class="font-semibold">Destino:</label>
-                            <input type="text" name="destino" value="{{ old('destino') }}"
-                                class="w-full border p-2 rounded" required>
-                        </div>
-
-                        <div class="grid grid-cols-2 gap-4">
+                        {{-- FILA 1: Nombre, Origen, Destino, Hora --}}
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                             <div>
-                                <label class="font-semibold">Fecha:</label>
-                                <input type="date" name="fecha" value="{{ old('fecha') }}"
-                                    class="w-full border p-2 rounded" required>
+                                <label class="font-semibold">Nombre del ride:</label>
+                                <input type="text" name="nombre" value="{{ old('nombre') }}"
+                                    class="w-full border p-2 rounded-lg" required>
                             </div>
+
+                            <div>
+                                <label class="font-semibold">Origen:</label>
+                                <input type="text" name="origen" id="input-origen" value="{{ old('origen') }}"
+                                    class="w-full border p-2 rounded-lg" required>
+                            </div>
+
+                            <div>
+                                <label class="font-semibold">Destino:</label>
+                                <input type="text" name="destino" id="input-destino" value="{{ old('destino') }}"
+                                    class="w-full border p-2 rounded-lg" required>
+                            </div>
+
                             <div>
                                 <label class="font-semibold">Hora:</label>
                                 <input type="time" name="hora" value="{{ old('hora') }}"
-                                    class="w-full border p-2 rounded" required>
+                                    class="w-full border p-2 rounded-lg" required>
                             </div>
                         </div>
 
-                        
-                        <div>
-                            <label class="font-semibold">Vehículo:</label>
-                            {{-- AÑADIDO: id=vehiculo_id_create para JS y data-capacidad --}}
-                            <select name="vehiculo_id" id="vehiculo_id_create" class="w-full border p-2 rounded" required>
-                                <option value="" data-capacidad="0">Seleccione un vehículo</option>
-                                @foreach ($vehiculos as $vehiculo)
-                                    <option value="{{ $vehiculo->id }}"
-                                        data-capacidad="{{ $vehiculo->capacidad }}"
-                                        {{ old('vehiculo_id') == $vehiculo->id ? 'selected' : '' }}>
-                                        {{ $vehiculo->marca }} ({{ $vehiculo->placa }})
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
+                        {{-- FILA 2: Fecha, Vehículo, Costo, Espacios --}}
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                            <div>
+                                <label class="font-semibold">Fecha:</label>
+                                <input type="date" name="fecha" value="{{ old('fecha') }}"
+                                    class="w-full border p-2 rounded-lg" required>
+                            </div>
 
-                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="font-semibold">Vehículo:</label>
+                                {{-- AÑADIDO: id=vehiculo_id_create para JS y data-capacidad --}}
+                                <select name="vehiculo_id" id="vehiculo_id_create" class="w-full border p-2 rounded-lg"
+                                        required>
+                                    <option value="" data-capacidad="0">Seleccione un vehículo</option>
+                                    @foreach ($vehiculos as $vehiculo)
+                                        <option value="{{ $vehiculo->id }}"
+                                            data-capacidad="{{ $vehiculo->capacidad }}"
+                                            {{ old('vehiculo_id') == $vehiculo->id ? 'selected' : '' }}>
+                                            {{ $vehiculo->marca }} ({{ $vehiculo->placa }})
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+
                             <div>
                                 <label class="font-semibold">Costo por espacio:</label>
                                 <input type="number" name="costo_por_espacio" value="{{ old('costo_por_espacio') }}"
-                                    step="0.01" class="w-full border p-2 rounded" required>
+                                    step="0.01" class="w-full border p-2 rounded-lg" required>
                             </div>
+
                             <div>
                                 {{-- MODIFICADO: Muestra el máximo de espacios y añade id=espacios_create y max --}}
-                                <label class="font-semibold">Espacios disponibles (Máx: <span id="max_espacios_display">N/A</span>):</label>
+                                <label class="font-semibold">
+                                    Espacios (Máx: <span id="max_espacios_display">N/A</span>):
+                                </label>
                                 <input type="number" name="espacios" id="espacios_create" value="{{ old('espacios') }}"
-                                    class="w-full border p-2 rounded" required min="1" max="1">
-                                <small class="text-gray-500 block mt-1">Capacidad máxima: Capacidad del vehículo - 1 (chofer).</small>
+                                    class="w-full border p-2 rounded-lg" required min="1" max="1">
+                                <small class="text-gray-500 block mt-1">
+                                    Capacidad máxima: Capacidad del vehículo - 1 (chofer).
+                                </small>
                             </div>
                         </div>
 
-                        <button type="submit"
-                            class="mt-4 w-full bg-indigo-600 text-white p-3 rounded-lg font-semibold hover:bg-indigo-700 transition duration-300">
-                            Publicar Ride
-                        </button>
+                        {{-- 🗺️ MAPA AGREGADO AQUI --}}
+                        <div id="map-hint"
+                             class="mt-2 mb-4 p-3 bg-blue-50 border-l-4 border-blue-500 text-blue-800 rounded text-center">
+                            🗺️ Selecciona en el mapa primero el <b>origen</b> y luego el <b>destino</b>.
+                        </div>
+
+                        <div id="map" class="rounded-xl overflow-hidden border" style="height: 350px; z-index:1;"></div>
+                        {{-- FIN MAPA --}}
+
+                        <div class="mt-4 flex justify-center">
+                            <button type="submit"
+                                class="bg-indigo-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-indigo-700 transition duration-300 shadow">
+                                Publicar Ride
+                            </button>
+                        </div>
                     </form>
-                    
+
                 </div>
             </div>
 
-
             {{-- 2. Listado de Rides --}}
-            <div class="p-6 bg-white rounded-lg shadow">
-                <h3 class="text-xl font-bold mb-4">Mis Rides Publicados ({{ $rides->count() }})</h3>
+            <div class="bg-white rounded-2xl shadow-xl p-8">
+                <h3 class="text-2xl font-bold text-center mb-6">
+                    Mis Rides Publicados ({{ $rides->count() }})
+                </h3>
                 
                 @if ($rides->isEmpty())
-                    <p class="text-gray-600">Aún no has publicado ningún ride. Usa el formulario de la izquierda.</p>
+                    <p class="text-gray-600 text-center">Aún no has publicado ningún ride. Usa el formulario de arriba.</p>
                 @endif
                 
                 <div class="grid grid-cols-1 gap-4 mt-6">
@@ -123,7 +144,7 @@
                             $espaciosReservados = $activeReservas->sum('espacios_reservados');
                         @endphp
                         
-                        {{-- CONTENEDOR DE LA TARJETA DEL RIDE --}}
+                        {{-- CONTENEDOR --}}
                         <div class="p-4 bg-white rounded-lg shadow border border-gray-100 flex items-start space-x-4">
                             
                             <div class="flex-shrink-0">
@@ -131,7 +152,6 @@
                                     <img src="{{ asset('storage/'.$ride->vehiculo->fotografia) }}"
                                          class="w-24 h-24 object-cover rounded-md">
                                 @else
-                                    {{-- Placeholder si no hay foto --}}
                                     <div class="w-24 h-24 bg-gray-100 rounded-md flex items-center justify-center text-gray-500 text-xs text-center">
                                         <p>Sin foto de auto</p>
                                     </div>
@@ -155,8 +175,7 @@
                                 </p>
                             </div>
                             
-                            {{-- SECCIÓN DE BOTONES DE ACCIÓN (Corregido para alinear a la derecha, quitando ml-auto) --}}
-                            <div class="flex-shrink-0 flex flex-col space-y-4"> {{-- ELIMINADA CLASE ml-auto --}}
+                            <div class="flex-shrink-0 flex flex-col space-y-4">
 
                                 @if ($activeReservasCount > 0)
                                     
@@ -164,7 +183,6 @@
                                         🔒 Reservado
                                     </span>
                                     
-                                    {{-- El botón de eliminar se mantiene, adaptado al nuevo estilo --}}
                                     <form action="{{ route('rides.destroy', $ride->id) }}" method="POST"
                                         onsubmit="return confirm('¿Estás seguro de que deseas eliminar este ride? Si tiene reservas activas, el sistema te lo impedirá.');"
                                         class="m-0">
@@ -177,14 +195,12 @@
                                         </button>
                                     </form>
                                 @else
-                                    {{-- Botón de Editar --}}
                                     <button onclick="openEditModal({{ $ride->toJson() }})"
                                         class="inline-block py-2 px-4 text-sm rounded-full text-white font-semibold 
                                                 bg-blue-600 transition duration-300 hover:bg-blue-700 whitespace-nowrap">
                                         ✏️ Editar
                                     </button>
 
-                                    {{-- Botón de Eliminar --}}
                                     <form action="{{ route('rides.destroy', $ride->id) }}" method="POST"
                                         onsubmit="return confirm('¿Estás seguro de que deseas eliminar este ride? Esta acción es irreversible.');"
                                         class="m-0">
@@ -208,10 +224,10 @@
 
         </div>
 
-
     </div>
 
 
+    {{-- MODAL --}}
     <div id="editRideModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 items-center justify-center">
         
         <div class="bg-white p-6 rounded-lg w-full max-w-xl"> 
@@ -222,7 +238,6 @@
                 @csrf
                 @method('PATCH') 
                 
-                {{-- Campos del formulario de edición --}}
                 <div>
                     <label class="font-semibold">Nombre del ride:</label>
                     <input type="text" id="edit_nombre" name="nombre" class="w-full border p-2 rounded" required>
@@ -255,11 +270,9 @@
     
                 <div>
                     <label class="font-semibold">Vehículo:</label>
-                    {{-- AÑADIDO: id=edit_vehiculo_id para JS --}}
                     <select id="edit_vehiculo_id" name="vehiculo_id" class="w-full border p-2 rounded" required>
                         <option value="" data-capacidad="0">Seleccione un vehículo</option>
                         @foreach ($vehiculos as $vehiculo)
-                            {{-- AÑADIDO data-capacidad --}}
                             <option value="{{ $vehiculo->id }}" data-capacidad="{{ $vehiculo->capacidad }}">
                                 {{ $vehiculo->marca }} ({{ $vehiculo->placa }})
                             </option>
@@ -273,7 +286,6 @@
                         <input type="number" id="edit_costo_por_espacio" name="costo_por_espacio" step="0.01" class="w-full border p-2 rounded" required>
                     </div>
                     <div>
-                        {{-- MODIFICADO: Muestra el máximo de espacios y añade id=edit_espacios y max --}}
                         <label class="font-semibold">Espacios disponibles (Máx: <span id="edit_max_espacios_display">N/A</span>):</label>
                         <input type="number" id="edit_espacios" name="espacios" class="w-full border p-2 rounded" required min="1" max="1">
                         <small class="text-gray-500 block mt-1">Capacidad máxima: Capacidad del vehículo - 1 (chofer).</small>
@@ -298,8 +310,8 @@
     </div>
 
 
+    {{-- ---------- SCRIPTS EXISTENTES ---------- --}}
     <script>
-        // Función general para calcular y aplicar el límite de espacios
         function updateMaxSpaces(selectId, inputId, maxDisplayId) {
             const selectVehiculo = document.getElementById(selectId);
             const inputEspacios = document.getElementById(inputId);
@@ -308,24 +320,18 @@
             const selectedOption = selectVehiculo.options[selectVehiculo.selectedIndex];
             const capacidadTotal = parseInt(selectedOption.getAttribute('data-capacidad') || 0);
             
-            // Capacidad máxima de pasajeros = Capacidad Total - 1 (Chofer)
             const maxEspacios = capacidadTotal > 0 ? capacidadTotal - 1 : 0;
             
-            // Aplicar el nuevo máximo al input
             inputEspacios.setAttribute('max', maxEspacios);
             maxDisplay.textContent = maxEspacios;
 
-            // Asegurar que el valor actual no exceda el nuevo máximo
             if (parseInt(inputEspacios.value) > maxEspacios || parseInt(inputEspacios.value) < 1) {
-                // Si la capacidad es 0, el valor debe ser 0
                 if (maxEspacios === 0) {
                     inputEspacios.value = 0;
                 } else {
-                    // Si el valor actual es inválido, usar el valor máximo
                     inputEspacios.value = maxEspacios;
                 }
             }
-            // Si la capacidad máxima es 0 (ej. un vehículo para 1), deshabilitar la entrada y poner 0
             if (maxEspacios === 0) {
                  inputEspacios.value = 0;
                  inputEspacios.disabled = true;
@@ -334,28 +340,23 @@
             }
         }
 
-        // Script de inicialización para el formulario de CREACIÓN
         document.addEventListener('DOMContentLoaded', function () {
             const selectVehiculoCreate = document.getElementById('vehiculo_id_create');
 
-            // 1. Inicializar la capacidad al cargar
             updateMaxSpaces('vehiculo_id_create', 'espacios_create', 'max_espacios_display');
 
-            // 2. Escuchar el cambio en la selección de vehículo
             selectVehiculoCreate.addEventListener('change', function() {
                 updateMaxSpaces('vehiculo_id_create', 'espacios_create', 'max_espacios_display');
             });
         });
         
-        // Modal de Edición
         function openEditModal(ride) {
-            // Rellena los campos del modal
+
             document.getElementById('edit_nombre').value = ride.nombre;
             document.getElementById('edit_origen').value = ride.origen;
             document.getElementById('edit_destino').value = ride.destino;
             document.getElementById('edit_fecha').value = ride.fecha;
 
-            // CORRECCIÓN CLAVE para la hora: elimina los segundos (HH:MM:SS -> HH:MM)
             if (ride.hora && ride.hora.length > 5) {
                 document.getElementById("edit_hora").value = ride.hora.substring(0, 5);
             } else {
@@ -365,33 +366,87 @@
             document.getElementById('edit_costo_por_espacio').value = ride.costo_por_espacio;
             document.getElementById('edit_vehiculo_id').value = ride.vehiculo_id;
             
-            // 💡 EJECUTA la función de límite antes de asignar el valor de espacios
-            // Esto asegura que el campo tenga el MAX correcto para el vehículo
             updateMaxSpaces('edit_vehiculo_id', 'edit_espacios', 'edit_max_espacios_display');
 
-            // Asigna el valor del ride DESPUÉS de establecer el MAX
-            // Si el valor del ride es mayor que el nuevo MAX, el JS ya lo habrá corregido
             document.getElementById('edit_espacios').value = ride.espacios;
 
-
-            // Vuelve a aplicar la lógica si cambia el vehículo en el modal
             document.getElementById('edit_vehiculo_id').onchange = function() {
                  updateMaxSpaces('edit_vehiculo_id', 'edit_espacios', 'edit_max_espacios_display');
             };
 
-            // Establece la acción del formulario
             document.getElementById('editRideForm').action = '/rides/' + ride.id;
 
-            // Muestra el modal
             document.getElementById('editRideModal').classList.remove('hidden');
             document.getElementById('editRideModal').classList.add('flex');
         }
 
         function closeEditModal() {
-            // Oculta el modal
             document.getElementById('editRideModal').classList.add('hidden');
             document.getElementById('editRideModal').classList.remove('flex');
         }
+    </script>
+
+
+    {{-- ---------- LEAFLET MAPA AGREGADO ---------- --}}
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script>
+        const map = L.map('map').setView([10.01625, -84.21163], 9);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19
+        }).addTo(map);
+
+        let mInicio = null, mFin = null;
+        let paso = "origen";
+
+        const hint = document.getElementById("map-hint");
+        const inputOrigen = document.getElementById("input-origen");
+        const inputDestino = document.getElementById("input-destino");
+
+        function esAlajuela(txt) {
+            return txt.toLowerCase().includes("alajuela");
+        }
+
+        async function reverse(lat, lng) {
+            const r = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`);
+            const d = await r.json();
+            return d.display_name || `${lat}, ${lng}`;
+        }
+
+        map.on("click", async e => {
+            const { lat, lng } = e.latlng;
+            const dir = await reverse(lat, lng);
+
+            if (!esAlajuela(dir)) {
+                hint.classList.remove("text-blue-800", "border-blue-500", "bg-blue-50");
+                hint.classList.add("text-red-700", "border-red-600", "bg-red-100");
+                hint.innerHTML = "❌ Solo se permiten ubicaciones dentro de <b>Alajuela</b>";
+                return;
+            }
+
+            hint.classList.remove("text-red-700", "border-red-600", "bg-red-100");
+            hint.classList.add("text-blue-800", "border-blue-500", "bg-blue-50");
+
+            if (paso === "origen") {
+                if (mInicio) map.removeLayer(mInicio);
+                mInicio = L.marker([lat, lng]).addTo(map).bindPopup("📍 Origen").openPopup();
+
+                inputOrigen.value = dir;
+
+                paso = "destino";
+                hint.innerHTML = "📍 Ahora selecciona el <b>destino</b>.";
+            } else {
+                if (mFin) map.removeLayer(mFin);
+                mFin = L.marker([lat, lng]).addTo(map).bindPopup("🏁 Destino").openPopup();
+
+                inputDestino.value = dir;
+
+                paso = "origen";
+                hint.innerHTML = "✅ Ubicaciones listas.";
+            }
+        });
     </script>
 
 </x-app-layout>
