@@ -36,7 +36,7 @@ class VehiculoController extends Controller
             'placa'     => 'required|string|max:20|unique:vehiculos,placa',
             'color'     => 'required|string',
             'anio'      => 'required|integer|min:2010|max:2030',
-            'capacidad' => 'required|integer|min:1|max:5',
+            'capacidad' => 'required|integer|min:2|max:5',
             'fotografia'=> 'nullable|image|max:2048',
         ]);
 
@@ -102,9 +102,23 @@ class VehiculoController extends Controller
             'placa'     => "required|string|max:20|unique:vehiculos,placa,{$vehiculo->id}",
             'color'     => 'required|string',
             'anio'      => 'required|integer|min:2010|max:2030',
-            'capacidad' => 'required|integer|min:1|max:5',
+            'capacidad' => 'required|integer|min:2|max:5',
             'fotografia'=> 'nullable|image|max:2048',
         ]);
+
+        // VALIDACIÓN: El vehículo debe tener capacidad suficiente para los espacios en rides existentes
+        $maxEspaciosRide = $vehiculo->rides()->max('espacios'); 
+
+        if ($maxEspaciosRide !== null) {
+            // La capacidad siempre debe ser >= (espacios + 1) porque el chofer ocupa 1
+            if ($request->capacidad < ($maxEspaciosRide + 1)) {
+                return back()->withErrors([
+                    'capacidad' => "⚠️ No puedes establecer la capacidad en {$request->capacidad}, 
+                    porque tienes rides con {$maxEspaciosRide} espacios para pasajeros y se necesita al menos " .
+                                ($maxEspaciosRide + 1) . " asientos totales para permitirlo."
+                ]);
+            }
+        }
 
         // Actualizar foto
         if ($request->hasFile('fotografia')) {
