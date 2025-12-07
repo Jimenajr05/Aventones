@@ -50,6 +50,14 @@ class RideController extends Controller
             'espacios'         => 'required|integer|min:1', // Quitamos el max:10
         ]);
 
+        // 🛑 Validación de fecha y hora actuales
+        $fechaHoraRide = Carbon::parse($request->fecha . ' ' . $request->hora);
+        $ahora = Carbon::now();
+
+        if ($fechaHoraRide->lessThan($ahora)) {
+            return back()->withInput()->withErrors('No puedes actualizar un ride a una fecha u hora pasada.');
+        }
+
         // 1. 🛑 NUEVA VALIDACIÓN: Capacidad Máxima de Espacios (Capacidad del vehículo - 1)
         $vehiculo = Vehiculo::find($request->vehiculo_id);
         $max_espacios_pasajeros = $vehiculo->capacidad - 1;
@@ -82,18 +90,7 @@ class RideController extends Controller
         return redirect()->route('rides.index')->with('success', 'Ride publicado correctamente.');
     }
 
-    /**
-     * Mostrar formulario de edición
-     * (No usado, la edición es en un modal en la vista index)
-     */
-    // public function edit(Ride $ride)
-    // {
-    //     // Lógica de edición si fuera en una vista separada
-    // }
-
-    /**
-     * Actualizar ride
-     */
+    // Actualizar ride
     public function update(Request $request, Ride $ride)
     {
         $user = Auth::user();
