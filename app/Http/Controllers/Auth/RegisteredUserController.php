@@ -14,11 +14,10 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\ActivateAccountMail;
 
+// Controlador para el registro de usuarios
 class RegisteredUserController extends Controller
 {
-    /**
-     * Display the registration view.
-     */
+    // Método para mostrar el formulario de registro
     public function create(): View
     {
         return view('auth.register');
@@ -43,9 +42,7 @@ class RegisteredUserController extends Controller
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
-        // ===============================
-        // VALIDACIÓN DE EDAD SEGÚN ROL
-        // ===============================
+        // Validar edad según rol
         $edad = \Carbon\Carbon::parse($request->fecha_nacimiento)->age;
 
         if ($request->role_id == 4 && $edad < 13) {
@@ -85,10 +82,10 @@ class RegisteredUserController extends Controller
         // Enviar correo de activación
         Mail::to($user->email)->send(new ActivateAccountMail($user));
 
-        // Disparar evento "Registered" (opcional)
+        // Disparar evento de registro
         event(new Registered($user));
 
-        // No iniciar sesión → usuario pendiente
+        // No iniciar sesión automáticamente
         return redirect()
             ->route('login')
             ->with('status', 'Cuenta creada. Revise su correo para activar su cuenta.');

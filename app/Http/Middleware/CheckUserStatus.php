@@ -7,23 +7,20 @@ use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Auth;
 
+// Middleware para verificar el estado del usuario antes de permitir el acceso a ciertas rutas
 class CheckUserStatus
 {
-    /**
-     * Handle an incoming request.
-     *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
-     */
+    // Metodo handle que intercepta la solicitud HTTP
     public function handle(Request $request, Closure $next)
     {
-        // 1) Si no hay usuario autenticado → continuar normal
+        // Si no hay usuario autenticado, continuar normal
         if (!auth()->check()) {
             return $next($request);
         }
 
         $user = auth()->user();
 
-        // 2) Si el usuario está pendiente
+        // Si el usuario está pendiente
         if ($user->status_id == 1) {
             auth()->logout(); 
             return redirect()->route('login')->withErrors([
@@ -31,7 +28,7 @@ class CheckUserStatus
             ]);
         }
 
-        // 3) Si el usuario está inactivo
+        // Si el usuario está inactivo
         if ($user->status_id == 3) {
             auth()->logout(); 
             return redirect()->route('login')->withErrors([
@@ -39,7 +36,7 @@ class CheckUserStatus
             ]);
         }
 
-        // 4) Todo OK
+        // Si el usuario está activo, continuar con la solicitud
         return $next($request);
     }
 }

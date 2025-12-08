@@ -7,13 +7,9 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Carbon\Carbon;
 
+// Clase para manejar la solicitud de actualización de perfil
 class ProfileUpdateRequest extends FormRequest
 {
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
-     */
 
     // Reglas de validación para actualizar el perfil
     public function rules(): array
@@ -23,9 +19,10 @@ class ProfileUpdateRequest extends FormRequest
             'apellido' => ['required', 'string', 'max:255'],
             'telefono' => ['required','string','max:20', Rule::unique('users', 'telefono')->ignore($this->user()->id)],
 
-            // email validado y único excepto el del usuario actual
+            // Email validado y único excepto el del usuario actual
             'email' => ['required', 'email', 'max:255', Rule::unique('users')->ignore($this->user()->id)],
 
+            // Validación de fecha de nacimiento según el rol del usuario
             'fecha_nacimiento' => [
                 'required',
                 'date',

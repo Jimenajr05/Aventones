@@ -6,11 +6,10 @@ use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
+// Seeder para insertar roles de usuario en la tabla 'roles'
 class RolesSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
+    // Ejecuta el seeder
     public function run(): void
     {
         //Roles de usuario

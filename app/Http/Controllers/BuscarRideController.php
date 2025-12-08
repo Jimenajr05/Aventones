@@ -2,37 +2,28 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Ride; // Asegúrate de importar tu modelo Ride
-use App\Models\Reserva; // <<< PASO 1: AÑADIDO: Importar modelo Reserva
+use App\Models\Ride; 
+use App\Models\Reserva; 
 use Illuminate\Http\Request;
 
-// 1. CORRECCIÓN: El nombre de la clase debe ser BuscarRideController
+// Controlador para manejar la búsqueda de rides disponibles
 class BuscarRideController extends Controller
 {
-    /**
-     * Muestra la página de búsqueda de rides disponibles.
-     * Aplica filtros y ordenamiento a la lista de rides.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\View\View
-     */
-    // 2. CORRECCIÓN: El nombre del método debe ser vistaBuscar
+    // Método para mostrar la vista de búsqueda de rides
     public function vistaBuscar(Request $request)
     {
-        // 1. Obtener los valores de búsqueda del formulario (si existen)
+        // Obtener los parámetros de búsqueda desde la solicitud
         $origen = $request->input('origen');
         $destino = $request->input('destino');
-        $orden = $request->input('orden', 'fecha'); // Por defecto, ordenar por fecha
-        $direccion = $request->input('direccion', 'asc'); // Dirección por defecto: ascendente
+        $orden = $request->input('orden', 'fecha'); 
+        $direccion = $request->input('direccion', 'asc'); 
 
-        // 2. Iniciar la consulta al modelo Ride
+        // Comenzar la construcción de la consulta
         $rides = Ride::query()
-            // 💡 CORRECCIÓN: Cargamos la relación 'vehiculo' y el 'user' (chofer) para evitar N/A
             ->with(['vehiculo', 'user']) 
-            // Solo queremos rides que aún tengan espacios disponibles
             ->where('espacios', '>', 0);
 
-        // 3. Aplicar filtros si los campos de origen y/o destino fueron llenados
+        // Aplicar los filtros de búsqueda si se proporcionan
         if ($origen) {
             $rides->where('origen', 'like', '%' . $origen . '%');
         }
@@ -41,11 +32,10 @@ class BuscarRideController extends Controller
             $rides->where('destino', 'like', '%' . $destino . '%');
         }
 
-        // 4. Aplicar el ordenamiento
+        // Aplicar el ordenamiento
         if (in_array($orden, ['fecha', 'origen', 'destino', 'precio', 'espacios'])) {
             $dir = strtolower($direccion) === 'desc' ? 'desc' : 'asc';
 
-            // El campo en BD es 'costo_por_espacio', no 'precio'
             if ($orden === 'precio') {
                 $rides->orderBy('costo_por_espacio', $dir);
             } else {
@@ -57,32 +47,23 @@ class BuscarRideController extends Controller
             $rides->orderBy('fecha', 'asc');
         }
 
-
-        // 5. Ejecutar la consulta y obtener los resultados
+        // Obtener los resultados de la consulta
         $rides = $rides->get();
 
-        // -----------------------------------------------------------------
-        // <<< LÓGICA AÑADIDA PARA VALIDAR LA RESERVA DEL PASAJERO >>>
-        // -----------------------------------------------------------------
-        
-        // A. Obtener las reservas del pasajero que NO están Canceladas (estado != 4)
+        // Obtener las reservas no canceladas del usuario autenticado
         $reservasNoCanceladas = Reserva::where('pasajero_id', auth()->id())
-                                        ->where('estado', '!=', 4) // Traer todas, excepto las canceladas
+                                        ->where('estado', '!=', 4) 
                                         ->get()
-                                        ->keyBy('ride_id'); // Indexar por ride_id para búsqueda rápida
+                                        ->keyBy('ride_id'); 
 
-        // B. Adjuntar la información de reserva a cada ride bajo la propiedad 'reserva_del_pasajero'
+        // Añadir la información de reserva a cada ride
         $rides = $rides->map(function ($ride) use ($reservasNoCanceladas) {
-            // Adjuntar la reserva (si existe) o null
             $ride->reserva_del_pasajero = $reservasNoCanceladas->get($ride->id);
             return $ride;
         });
-        // -----------------------------------------------------------------
-        // <<< FIN LÓGICA AÑADIDA >>>
-        // -----------------------------------------------------------------
-
+      
+        // Añadir información sobre si alguien ha reservado el ride
         $rides = $rides->map(function ($ride) {
-            // Ver si ALGUIEN ya reservó este ride (pendiente=1 o aceptada=2)
             $hayReserva = \App\Models\Reserva::where('ride_id', $ride->id)
                 ->whereIn('estado', [1, 2])
                 ->exists();
@@ -92,12 +73,9 @@ class BuscarRideController extends Controller
             return $ride;
         });
 
-
-        // 6. Retornar la vista con los rides
-        // 3. CORRECCIÓN: Se usa 'buscarRides.buscarRides' por la estructura de carpetas
+        // Retornar la vista con los rides encontrados y los parámetros de búsqueda
         return view('buscarRides.buscarRides', [ 
             'rides' => $rides,
-            // Opcional: pasar los valores de búsqueda para que el formulario los recuerde
             'origen_buscado' => $origen,
             'destino_buscado' => $destino,
             'orden_actual' => $orden,

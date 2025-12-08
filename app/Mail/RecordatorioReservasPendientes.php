@@ -9,29 +9,21 @@ use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Collection;
 
+// Mailable para enviar recordatorios de reservas pendientes a los choferes.
 class RecordatorioReservasPendientes extends Mailable
 {
     use Queueable, SerializesModels;
 
-    /**
-     * La colección de reservas pendientes para el chofer.
-     * @var Collection
-     */
+    // La colección de reservas pendientes
     public $reservas; 
 
-    /**
-     * Create a new message instance.
-     *
-     * @param Collection $reservas La colección de reservas
-     */
+    // Constructor que recibe las reservas pendientes
     public function __construct(Collection $reservas)
     {
         $this->reservas = $reservas;
     }
 
-    /**
-     * Get the message envelope.
-     */
+    // Definición del sobre del correo
     public function envelope(): Envelope
     {
         $count = $this->reservas->count();
@@ -44,13 +36,10 @@ class RecordatorioReservasPendientes extends Mailable
         );
     }
 
-    /**
-     * Get the message content.
-     */
+    // Definición del contenido del correo
     public function content(): Content
     {
         return new Content(
-            // 🎯 CORRECCIÓN CLAVE AQUÍ: Cambiamos 'recordatorio_reservas' a 'reservas_pendientes'
             view: 'emails.reservas_pendientes', 
             with: [
                 'reservas' => $this->reservas, 

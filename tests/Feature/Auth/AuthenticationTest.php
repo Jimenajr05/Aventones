@@ -19,7 +19,6 @@ class AuthenticationTest extends TestCase
 
     public function test_users_can_authenticate_using_the_login_screen(): void
     {
-        // Crea el usuario con el Factory corregido
         $user = User::factory()->create(); 
 
         $response = $this->post('/login', [
@@ -28,7 +27,6 @@ class AuthenticationTest extends TestCase
         ]);
 
         $this->assertAuthenticated();
-        // 🔑 CORREGIDO: Redirecciona al dashboard de Pasajero (role:4)
         $response->assertRedirect('/pasajero/dashboard'); 
     }
 

@@ -3,13 +3,13 @@
         {{ __('¿Olvidaste tu contraseña? No hay problema. Solo indícanos tu dirección de correo electrónico y te enviaremos un enlace para restablecerla y crear una nueva.') }}
     </div>
 
-    <!-- Session Status -->
+    <!-- Estatus de sesión -->
     <x-auth-session-status class="mb-4" :status="session('status')" />
 
     <form method="POST" action="{{ route('password.email') }}">
         @csrf
 
-        <!-- Email Address -->
+        <!-- Correo -->
         <div>
             <x-input-label for="email" :value="__('Correo electrónico')" />
             <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus />

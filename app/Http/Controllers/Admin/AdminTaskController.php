@@ -9,39 +9,39 @@ use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 
+// Controlador para manejar tareas administrativas relacionadas con reservas
 class AdminTaskController extends Controller
 {
-    /**
-     * Ejecuta el comando Artisan para recordar reservas pendientes a choferes.
-     */
+    // Método para ejecutar el comando de recordatorio de reservas
     public function executeReservationReminder()
     {
-        // 1. Determinar la ruta de redirección correcta (Super Admin vs. Admin)
+        // Determinación de la ruta de redirección basada en el rol del usuario
         $user = Auth::user();
         $redirectRoute = ($user->role_id == 1) ? 'superadmin.dashboard' : 'admin.dashboard';
 
-        // 2. 🎯 CORRECCIÓN FUNCIONAL: Definir el tiempo bajo (1 minuto).
-        // Esto fuerza al comando a buscar casi todas las reservas pendientes.
+        // Definición del argumento para el comando Artisan
         $minutos = 1; 
 
         try {
-            // 3. Ejecutar el comando Artisan, pasando el argumento $minutos
+            // Ejecución del comando Artisan con el argumento especificado
             $exitCode = Artisan::call('reservas:notificar', ['minutos' => $minutos]);
 
+            // Manejo de la respuesta basada en el código de salida del comando
             if ($exitCode === 0) {
                 return Redirect::route($redirectRoute)
                     ->with('success', "Se notificaron reservas con más de {$minutos} minuto(s).");
             }
 
+            // Código de salida 2 indica que no se encontraron reservas pendientes
             if ($exitCode === 2) {
                 return Redirect::route($redirectRoute)
                     ->with('success', "No se encontraron reservas pendientes con más de {$minutos} minuto(s).");
             }
 
+            // Manejo de otros códigos de error
             return Redirect::route($redirectRoute)
             ->with('error', '❌ Ocurrió un error al ejecutar el comando. Revisa los logs.');
 
-            
         } catch (\Exception $e) {
             Log::error('Excepción al ejecutar comando Artisan: ' . $e->getMessage());
             return Redirect::route($redirectRoute)

@@ -4,11 +4,10 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
+// Migración para crear las tablas de trabajos, lotes de trabajos y trabajos fallidos
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
+    // Ejecutar las migraciones
     public function up(): void
     {
         Schema::create('jobs', function (Blueprint $table) {
@@ -45,9 +44,7 @@ return new class extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
+    // Revertir las migraciones
     public function down(): void
     {
         Schema::dropIfExists('jobs');

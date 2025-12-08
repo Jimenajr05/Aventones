@@ -1,6 +1,5 @@
 @php
-    // ASUMIMOS que el Mailable ahora pasa una colección llamada $reservas.
-    // Obtenemos la información del chofer de la primera reserva en la colección
+    // Obtener el chofer y la cantidad de reservas
     $primeraReserva = $reservas->first();
     $chofer = $primeraReserva->ride->vehiculo->chofer;
     $cantidad = $reservas->count();
@@ -39,7 +38,7 @@
         <p>Tienes la siguiente reserva pendiente de revisión:</p>
     @endif
 
-    {{-- 🎯 Iterar sobre la colección de reservas --}}
+    {{-- Iterar sobre la colección de reservas --}}
     <ul>
         @foreach ($reservas as $reserva)
             @php

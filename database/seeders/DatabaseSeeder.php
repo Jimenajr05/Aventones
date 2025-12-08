@@ -6,9 +6,7 @@ use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
-    /**
-     * Seed the application's database.
-     */
+    // Ejecuta los seeders para poblar la base de datos con datos iniciales
     public function run(): void
     {
         $this->call([

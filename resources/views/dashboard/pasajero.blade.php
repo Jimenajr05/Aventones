@@ -5,8 +5,6 @@
 @endphp
 
 <x-app-layout> 
-
-    {{-- ESTE CONTENIDO ES LO QUE SE INYECTA EN EL {{ $slot }} de app.blade.php --}}
     
     <section class="w-11/12 max-w-screen-xl mx-auto mt-24 bg-white p-6 sm:p-10 rounded-2xl shadow-[0_8px_25px_rgba(0,0,0,0.08)] text-center">
         
@@ -19,7 +17,6 @@
             </p>
         @endif
 
-        {{-- ======== CONTENEDOR DE OPCIONES (Centrado) ======== --}}
         <div class="flex flex-wrap justify-center gap-8">
             
             {{-- Opción 1: Buscar Rides --}}

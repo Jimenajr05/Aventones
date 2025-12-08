@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+// Modelo que representa un ride ofrecido por un chofer
 class Ride extends Model
 {
     use HasFactory;
@@ -38,8 +39,6 @@ class Ride extends Model
 
     public function user()
     {
-        // Asumiendo que la clave foránea es 'user_id'
         return $this->belongsTo(User::class, 'user_id'); 
     }
-    
 }

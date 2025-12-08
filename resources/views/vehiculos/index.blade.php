@@ -21,11 +21,9 @@
             </div>
         @endif
 
-
-        {{-- TODO IGUAL AL ESTILO DE RIDES --}}
         <div class="space-y-10">
 
-            {{-- 1. FORMULARIO DE REGISTRO --}}
+            {{-- Formulario --}}
             <div class="bg-white rounded-2xl shadow-xl p-8">
                 
                 <h3 class="text-2xl font-bold text-center mb-6">Registrar nuevo vehículo</h3>
@@ -102,7 +100,7 @@
             </div>
 
 
-            {{-- 2. LISTADO --}}
+            {{-- Listado --}}
             <div class="bg-white rounded-2xl shadow-xl p-8">
 
                 <h3 class="text-2xl font-bold text-center mb-6">Mis Vehículos Registrados</h3>
@@ -174,7 +172,7 @@
     </div>
 
 
-    {{-- MODAL --}}
+    {{-- Modal --}}
     <div id="editModal"
          class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
 
@@ -246,8 +244,7 @@
 
     </div>
 
-
-    {{-- SCRIPT --}}
+    {{-- Script --}}
     <script>
         function openEditModal(vehiculo) {
             document.getElementById('edit_marca').value = vehiculo.marca;

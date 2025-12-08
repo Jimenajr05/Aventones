@@ -4,22 +4,20 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
+// Migración para crear la tabla de reservas
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
-    //Funcionalidad: Crear la tabla 'reservas' para gestionar las reservas de rides por parte de los pasajeros.
+    // Ejecutar las migraciones
     public function up()
     {
         Schema::create('reservas', function (Blueprint $table) {
             $table->id();
 
             $table->unsignedBigInteger('ride_id');
-            $table->unsignedBigInteger('pasajero_id'); // user_id del pasajero
+            $table->unsignedBigInteger('pasajero_id'); 
 
+            // Estado de la reserva: 1 = Activa, 0 = Cancelada
             $table->tinyInteger('estado')->default(1); 
-            // 1 = Pendiente, 2 = Aceptada, 3 = Rechazada, 4 = Cancelada
 
             $table->timestamps();
 
@@ -28,10 +26,7 @@ return new class extends Migration
         });
     }
 
-
-    /**
-     * Reverse the migrations.
-     */
+    // Revertir las migraciones
     public function down(): void
     {
         Schema::dropIfExists('reservas');

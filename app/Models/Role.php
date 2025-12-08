@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+// Modelo que representa un rol de usuario
 class Role extends Model
 {
     protected $fillable = ['name'];

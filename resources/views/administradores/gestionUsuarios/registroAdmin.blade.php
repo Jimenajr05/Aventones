@@ -2,7 +2,7 @@
     
     <div class="max-w-3xl mx-auto py-10">
 
-        {{-- ALERTAS --}}
+        {{-- Alertas --}}
         @if(session('success'))
             <div class="bg-green-100 border border-green-300 text-green-800 p-4 rounded-lg mb-6">
                 {{ session('success') }}
@@ -19,16 +19,16 @@
             </div>
         @endif
 
-        {{-- TARJETA --}}
+        {{-- Tarjetas --}}
         <div class="bg-white p-8 rounded-2xl shadow-[0_8px_25px_rgba(0,0,0,0.08)]">
 
-            {{-- TÍTULO --}}
+            {{-- Título --}}
             <div class="mb-8 text-center">
                 <h2 class="font-bold text-3xl">Registrar Administrador</h2>
                 <div class="w-16 h-1 mx-auto mt-2 rounded-full opacity-70"></div>
             </div>
 
-            {{-- FORMULARIO --}}
+            {{-- Formulario --}}
             <form method="POST"
                   action="{{ route('admin.store') }}"
                   enctype="multipart/form-data"

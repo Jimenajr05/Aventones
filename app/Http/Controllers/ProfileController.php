@@ -1,5 +1,4 @@
 <?php
-// app/Http/Controllers/ProfileController.php
 
 namespace App\Http\Controllers;
 
@@ -11,13 +10,12 @@ use Illuminate\Support\Facades\Redirect;
 
 use Illuminate\View\View;
 use Illuminate\Support\Str; 
-use Illuminate\Support\Facades\Storage; // 💡 Importar Storage para manejar archivos
+use Illuminate\Support\Facades\Storage; 
 
+// Controlador para la gestión del perfil de usuario
 class ProfileController extends Controller
 {
-    /**
-     * Display the user's profile form.
-     */
+    // Mostrar el formulario de edición del perfil
     public function edit(Request $request): View
     {
         return view('profile.edit', [
@@ -25,35 +23,29 @@ class ProfileController extends Controller
         ]);
     }
 
-    /**
-     * Update the user's profile information.
-     */
+    // Actualizar el perfil del usuario
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
 
         $user = $request->user();
         $user->fill($request->validated()); 
 
-        
-        // 🎯 LÓGICA DE GESTIÓN DE LA FOTO (CORRECCIÓN CLAVE)
+        // Cambio de foto de perfil
         if ($request->hasFile('foto')) {
             
-            // 1. Eliminar la foto anterior si existe
+            // Eliminar la foto anterior si existe
             if ($user->foto) {
-                // Asumiendo que las fotos se guardan en el disco 'public'
                 Storage::disk('public')->delete($user->foto); 
             }
             
-            // 2. Guardar la nueva foto
-            // Esto guarda el archivo y devuelve la ruta relativa (e.g., 'avatars/nombre_hash.jpg')
+            // Almacenar la nueva foto y actualizar el campo 'foto' del usuario
             $user->foto = $request->file('foto')->store('avatars', 'public');
         }
 
-
-        // 🎯 LÓGICA DE CAMBIO DE EMAIL (para Super Admin no desactivar)
+        // Verificar si el email ha cambiado
         if ($user->isDirty('email')) {
             
-            // Solo si el usuario NO es Super Admin (role_id != 1), se pone como Pendiente (1)
+            // Si el usuario no es administrador, actualizar el estado y generar un token de activación
             if ($user->role_id != 1) { 
                 $user->status_id = 1; // Pendiente
                 $user->activation_token = Str::random(60);
@@ -62,15 +54,14 @@ class ProfileController extends Controller
 
         $user->save(); 
 
-        // Redirigir a /profile
+        // Redirigir al perfil con un mensaje de éxito
         return Redirect::to('/profile')->with('status', 'profile-updated'); 
     }
 
-    /**
-     * Delete the user's account.
-     */
+    // Eliminar la cuenta del usuario
     public function destroy(Request $request): RedirectResponse
     {
+        // Validar la contraseña antes de eliminar la cuenta
         $request->validateWithBag('userDeletion', [
             'password' => ['required', 'current_password'],
         ]);

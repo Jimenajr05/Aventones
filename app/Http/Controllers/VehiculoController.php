@@ -6,11 +6,10 @@ use App\Models\Vehiculo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
+// Controlador para gestionar vehículos
 class VehiculoController extends Controller
 {
-    /**
-     * Mostrar formulario y lista de vehículos
-     */
+    // Listar vehículos del usuario autenticado
     public function index()
     {
         $user = auth()->user();
@@ -25,9 +24,7 @@ class VehiculoController extends Controller
         return view('vehiculos.index', compact('vehiculos', 'colores'));
     }
 
-    /**
-     * Registrar vehículo
-     */
+    // Almacenar nuevo vehículo
     public function store(Request $request)
     {
         $request->validate([
@@ -71,9 +68,7 @@ class VehiculoController extends Controller
             ->with('success', 'Vehículo registrado correctamente.');
     }
 
-    /**
-     * Eliminar vehículo
-     */
+    // Eliminar vehículo
     public function destroy(Vehiculo $vehiculo)
     {
         // Validar dueño del vehículo
@@ -82,7 +77,7 @@ class VehiculoController extends Controller
                 ->withErrors('No tienes permiso para eliminar este vehículo.');
         }
 
-        // 1️⃣ Revisar si tiene rides con reservas activas (pendiente=1, aceptada=2)
+        // Revisar si tiene rides con reservas activas (pendiente=1, aceptada=2)
         $tieneReservasActivas = $vehiculo->rides()
             ->whereHas('reservas', function($q) {
                 $q->whereIn('estado', [1, 2]);
@@ -94,7 +89,7 @@ class VehiculoController extends Controller
                 ->withErrors('No puedes eliminar este vehículo porque tiene rides con reservas activas.');
         }
 
-        // 2️⃣ Si NO hay reservas activas, revisar si tiene rides asociados
+        // Si NO hay reservas activas, revisar si tiene rides asociados
         $tieneRides = $vehiculo->rides()->exists();
 
         if ($tieneRides) {
@@ -102,7 +97,7 @@ class VehiculoController extends Controller
                 ->withErrors('Este vehículo tiene rides asociados y no puede eliminarse.');
         }
 
-        // 3️⃣ Si no tiene rides → permitir eliminar
+        // Si no tiene rides, permitir eliminar
         if ($vehiculo->fotografia) {
             Storage::disk('public')->delete($vehiculo->fotografia);
         }
@@ -113,10 +108,9 @@ class VehiculoController extends Controller
             ->with('success', 'Vehículo eliminado correctamente.');
     }
 
-
+    // Actualizar vehículo
     public function update(Request $request, Vehiculo $vehiculo)
     {
-        // Validaciones
         $request->validate([
             'marca'     => 'required|string|max:50',
             'modelo'    => 'required|string|max:50',
@@ -127,11 +121,11 @@ class VehiculoController extends Controller
             'fotografia'=> 'nullable|image|max:2048',
         ]);
 
-        // VALIDACIÓN: El vehículo debe tener capacidad suficiente para los espacios en rides existentes
+        // Validar espacio suficiente para rides existentes
         $maxEspaciosRide = $vehiculo->rides()->max('espacios'); 
 
         if ($maxEspaciosRide !== null) {
-            // La capacidad siempre debe ser >= (espacios + 1) porque el chofer ocupa 1
+            // Si hay rides, la capacidad debe ser al menos maxEspaciosRide + 1
             if ($request->capacidad < ($maxEspaciosRide + 1)) {
                 return back()->withErrors([
                     'capacidad' => "⚠️ No puedes establecer la capacidad en {$request->capacidad}, 

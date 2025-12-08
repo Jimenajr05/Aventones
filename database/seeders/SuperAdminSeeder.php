@@ -7,14 +7,13 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
+// Seeder para insertar un super administrador en la tabla 'users'
 class SuperAdminSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
+    // Ejecuta el seeder
     public function run(): void
     {
-        //Tabla de Super Usuario
+        // Tabla de Super Usuario
         DB::table('users')->insert([
             'nombre' => 'Super',
             'apellido' => 'Admin',
@@ -26,8 +25,8 @@ class SuperAdminSeeder extends Seeder
             'email' => 'super@admin.com',
             'password' => Hash::make('SuperAdmin1234'),
 
-            'role_id' => 1,       // super_admin
-            'status_id' => 2,     // Activo
+            'role_id' => 1, // super_admin
+            'status_id' => 2, // Activo
             'is_super_admin' => true,
 
             'created_at' => now(),

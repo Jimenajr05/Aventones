@@ -1,6 +1,6 @@
 <x-app-layout>
 
-    {{-- BLOQUE DE MENSAJES FLASH (Éxito y Error) --}}
+    {{-- Mensajes --}}
     @if (session('success'))
         <div class="w-11/12 max-w-screen-xl mx-auto mt-6 p-4 bg-green-100 border-l-4 border-green-500 text-green-700 rounded-lg shadow-md" role="alert">
             <p class="font-bold flex items-center">
@@ -66,7 +66,7 @@
                 <h2 class="text-[#0B3D2E] mb-2 text-xl font-semibold">⏰ Notificar Reservas</h2>
                 <p class="text-[#555] text-base mb-5">Ejecuta el script para recordar a choferes sobre reservas pendientes.</p>
 
-                {{-- FORMULARIO CON LÓGICA DE CARGA JS --}}
+                {{-- Formulario --}}
                 <form id="reminder-form" method="POST" action="{{ route('admin.execute.reservation_reminder') }}"
                       onsubmit="return confirmExecute(event)">
                     @csrf
@@ -76,7 +76,7 @@
                         Notificar
                     </button>
                     
-                    {{-- MENSAJE DE CARGA OCULTO --}}
+                    {{-- Mensaje --}}
                     <div id="loading-message" class="hidden mt-2 p-2 text-sm text-center text-orange-700 bg-orange-100 rounded-lg">
                         ⏳ Ejecutando comando... por favor, espere.
                     </div>

@@ -9,23 +9,20 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
+// Clase para enviar correo de activación de cuenta
 class ActivateAccountMail extends Mailable
 {
     use Queueable, SerializesModels;
 
     public $user;
 
-    /**
-     * Create a new message instance.
-     */
+    // Constructor que recibe el usuario
     public function __construct(User $user)
     {
         $this->user = $user;
     }
 
-    /**
-     * Get the message envelope.
-     */
+    // Definición del sobre del correo
     public function envelope(): Envelope
     {
         return new Envelope(
@@ -33,9 +30,7 @@ class ActivateAccountMail extends Mailable
         );
     }
 
-    /**
-     * Get the message content definition.
-     */
+    // Definición del contenido del correo
     public function content(): Content
     {
         return new Content(

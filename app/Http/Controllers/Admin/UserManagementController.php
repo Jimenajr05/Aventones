@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 
+// Controlador para la gestión de usuarios por parte de administradores
 class UserManagementController extends Controller
 {
     // Mostrar la lista completa de usuarios
@@ -16,12 +17,13 @@ class UserManagementController extends Controller
         return view('administradores.gestionUsuarios.index', compact('users'));
     }
 
-    //  REGISTRAR NUEVO ADMIN (rol_id = 2)
+    // Mostrar el formulario para crear un nuevo administrador
     public function createAdmin()
     {
         return view('administradores.gestionUsuarios.registroAdmin');
     }
 
+    // Almacenar un nuevo administrador en la base de datos
     public function storeAdmin(Request $request)
     {
         $request->validate([
@@ -45,7 +47,7 @@ class UserManagementController extends Controller
             $rutaFoto = $request->file('foto')->store('fotos_admins', 'public');
         }
 
-        // Crear siempre ADMIN (role_id = 1)
+        // Crear el administrador en la base de datos con role_id fijo de 2
         User::create([
             'nombre' => $request->nombre,
             'apellido' => $request->apellido,
@@ -54,21 +56,21 @@ class UserManagementController extends Controller
             'fecha_nacimiento' => $request->fecha_nacimiento,
             'telefono' => $request->telefono,
             'foto' => $rutaFoto,
-            'role_id' => 2,      // 🔥 ADMIN FIJO
-            'status_id' => 2,    // Activo
+            'role_id' => 2,      
+            'status_id' => 2,  
             'password' => Hash::make($request->password),
         ]);
 
         return redirect()->back()->with('success', 'Administrador creado correctamente.');
     }
 
-    //  ACTIVAR USUARIO
+    // Actuvar usuario 
     public function activate($id)
     {
         $auth = auth()->user();   
         $user = User::findOrFail($id); 
 
-        // Nadie puede tocar al Super Admin
+        // Nadie puede modificar al Super Admin
         if ($user->role_id == 1 && $user->is_super_admin) {
             return back()->withErrors(['error' => 'No puedes modificar al Super Admin.']);
         }
@@ -80,18 +82,18 @@ class UserManagementController extends Controller
         return back()->with('success', 'Usuario activado correctamente.');
     }
 
-    //  DESACTIVAR USUARIO
+    // Desactivar usuario
     public function deactivate($id)
     {
         $auth = auth()->user();
         $user = User::findOrFail($id);
 
-        // Nadie puede tocar al Super Admin
+        // Nadie puede modificar al Super Admin
         if ($user->role_id == 1 && $user->is_super_admin) {
             return back()->withErrors(['error' => 'No puedes desactivar al Super Admin.']);
         }
 
-        // No puede desactivarse a sí mismo
+        // Los usuarios no pueden desactivarse a sí mismos
         if ($auth->id === $user->id) {
             return back()->withErrors(['error' => 'No puedes desactivarte tú mismo.']);
         }

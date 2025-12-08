@@ -21,13 +21,13 @@
             </div>
         @endif
 
-        {{-- 🔍 FORMULARIO DE BÚSQUEDA ESTILO RIDES --}}
+        {{-- Formulario --}}
         <div class="bg-white p-8 rounded-2xl shadow-xl">
             <h3 class="text-2xl font-bold text-center mb-6">Buscar rides disponibles</h3>
 
             <form method="GET" action="{{ route('pasajero.buscar_rides') }}" class="space-y-6">
 
-                {{-- FILA 1: ORIGEN - DESTINO --}}
+                {{-- Origen- Destino --}}
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
                         <label class="font-semibold">Origen:</label>
@@ -58,7 +58,7 @@
                     </div>
                 </div>
 
-                {{-- FILA 2: ASC/DESC - BOTONES --}}
+                {{-- Botones (ASC - DESC) --}}
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
 
                     <div>
@@ -70,14 +70,14 @@
                         </select>
                     </div>
 
-                    {{-- BOTÓN BUSCAR --}}
+                    {{-- Botón buscar --}}
                     <div class="flex items-end">
                         <button class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg font-semibold shadow w-full">
                             🔍 Buscar
                         </button>
                     </div>
 
-                    {{-- BOTÓN LIMPIAR --}}
+                    {{-- Botón limpiar --}}
                     <div class="flex items-end">
                         <a href="{{ route('pasajero.buscar_rides') }}"
                         class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-semibold shadow w-full text-center">
@@ -89,7 +89,7 @@
         </div>
 
 
-        {{-- 🗺️ MAPA - MISMO ESTILO DE RIDES --}}
+        {{-- Mapa --}}
         <div class="bg-white p-8 rounded-2xl shadow-xl space-y-4">
             
             <div id="map-hint"
@@ -103,7 +103,7 @@
 
         </div>
 
-        {{-- 📋 LISTA DE RIDES - ESTILO RIDES --}}
+        {{-- Listar Rides --}}
         <div class="bg-white p-8 rounded-2xl shadow-xl">
             <h3 class="text-2xl font-bold text-center mb-6">Rides disponibles</h3>
 
@@ -111,7 +111,6 @@
                 <p class="text-gray-600 text-center">No hay rides con esos filtros.</p>
             @else
 
-                {{-- ORDENAMIENTO HELPER --}}
                 @php
                     function orderUrl($field, $current_order, $current_dir, $origen, $destino) {
                         $new_dir = 'asc';
@@ -129,7 +128,7 @@
                     $direccion_actual = $direccion_actual ?? 'asc';
                 @endphp
 
-                {{-- TABLA --}}
+                {{-- Tabla --}}
                 <div class="overflow-x-auto">
                     <table class="w-full border-collapse rounded-lg overflow-hidden">
                         <thead>
@@ -216,7 +215,7 @@
                                                 {{ ['','Pendiente','Reservado','Rechazada','Cancelada'][$reserva->estado] }}
                                             </span>
 
-                                        {{-- NUEVO: Si *otro* pasajero ya reservó este ride --}}
+                                        {{-- Si otro pasajero ya reservó este ride --}}
                                         @elseif(!empty($ride->alguien_reservo) && $ride->alguien_reservo === true)
                                             <span class="bg-gray-400 text-white px-4 py-2 rounded-lg text-sm shadow">
                                                 Reservado
@@ -250,7 +249,7 @@
     </div>
 
 
-    {{-- LEAFLET --}}
+    {{-- Mapa LEAFLET --}}
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 

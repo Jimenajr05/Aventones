@@ -61,7 +61,7 @@
             <x-input-error class="mt-2" :messages="$errors->get('telefono')" />
         </div>
 
-        {{-- Correo electrónico (SOLO LECTURA) --}}
+        {{-- Correo electrónico (Solo lectura) --}}
         <div>
             <x-input-label for="email" :value="__('Correo electrónico')" />
             <x-text-input id="email" name="email" type="email"
@@ -70,7 +70,7 @@
             <x-input-error class="mt-2" :messages="$errors->get('email')" />
         </div>
 
-        {{-- Fotografía actual (CORREGIDA CON ESTILO EN LÍNEA FORZADO) --}}
+        {{-- Fotografía actual --}}
         @if(Auth::user()->foto)
             <img src="{{ asset('storage/' . Auth::user()->foto) }}" 
                 class="w-24 h-24 rounded-full border shadow object-cover mb-4">

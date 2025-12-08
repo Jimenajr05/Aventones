@@ -11,13 +11,13 @@
 
 <x-guest-layout>
 
-    <!-- Session Status -->
+    <!-- Estado de Sesión -->
     <x-auth-session-status class="mb-4" :status="session('status')" />
 
     <form method="POST" action="{{ route('login') }}">
         @csrf
 
-        <!-- Email -->
+        <!-- Correo -->
         <div>
             <x-input-label for="email" :value="__('Correo electrónico')" />
             <x-text-input id="email" class="block mt-1 w-full" 
@@ -27,7 +27,7 @@
             <x-input-error :messages="$errors->get('email')" class="mt-2" />
         </div>
 
-        <!-- Password -->
+        <!-- Contraseña -->
         <div class="mt-4">
             <x-input-label for="password" :value="__('Contraseña')" />
             <x-text-input id="password" class="block mt-1 w-full"
@@ -35,7 +35,7 @@
             <x-input-error :messages="$errors->get('password')" class="mt-2" />
         </div>
 
-        <!-- Remember Me -->
+        <!-- Recordar -->
         <div class="block mt-4">
             <label for="remember_me" class="inline-flex items-center">
                 <input id="remember_me" type="checkbox" 
@@ -55,7 +55,7 @@
             </p>
         </div>
 
-        <!-- Actions -->
+        <!-- Acciones -->
         <div class="flex items-center justify-between mt-4">
 
             @if (Route::has('password.request'))

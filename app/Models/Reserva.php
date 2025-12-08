@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+// Modelo que representa una reserva de un ride por un pasajero
 class Reserva extends Model
 {
     protected $fillable = [

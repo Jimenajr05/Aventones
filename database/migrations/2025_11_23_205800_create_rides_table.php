@@ -4,11 +4,10 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
+// Migración para crear la tabla de rides
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
+    // Ejecutar las migraciones
     public function up(): void
     {
         Schema::create('rides', function (Blueprint $table) {
@@ -16,7 +15,7 @@ return new class extends Migration
 
             // Chofer que crea el ride
             $table->foreignId('user_id')
-                  ->constrained() // users
+                  ->constrained() 
                   ->onDelete('cascade');
 
             // Vehículo asociado
@@ -24,21 +23,19 @@ return new class extends Migration
                   ->constrained('vehiculos')
                   ->onDelete('cascade');
 
-            $table->string('nombre');             // Nombre del ride
-            $table->string('origen');             // Lugar de salida
-            $table->string('destino');            // Lugar de llegada
-            $table->date('fecha');                // Día
-            $table->time('hora');                 // Hora
+            $table->string('nombre');             
+            $table->string('origen');             
+            $table->string('destino');           
+            $table->date('fecha');                
+            $table->time('hora');               
             $table->decimal('costo_por_espacio', 10, 2);
-            $table->unsignedTinyInteger('espacios'); // Cantidad de espacios
+            $table->unsignedTinyInteger('espacios'); 
 
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
+    // Revertir las migraciones
     public function down(): void
     {
         Schema::dropIfExists('rides');

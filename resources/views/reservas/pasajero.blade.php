@@ -1,6 +1,5 @@
 <x-app-layout>
     
-    {{-- CONTENEDOR PRINCIPAL: Centrado y con ancho limitado --}}
     <div class="py-10 max-w-7xl mx-auto sm:px-6 lg:px-8">
 
         {{-- Mensajes --}}
@@ -16,16 +15,13 @@
             </div>
         @endif
     
-        {{-- ========================================================== --}}
-        {{-- 1. MIS RESERVAS (Activas: Pendientes y Aceptadas) --}}
-        {{-- ========================================================== --}}
+        {{-- Mis reservas (Pendientes y Aceptadas) --}}
         <div class="bg-white p-6 rounded shadow mb-8">
             <h3 class="text-xl font-semibold mb-4">Mis reservas</h3>
 
             @if ($misReservas->isEmpty())
                 <p class="text-gray-600">No tienes reservas activas (Pendientes o Aceptadas).</p>
             @else
-                {{-- NUEVO DIV PARA CENTRAR LA TABLA Y LIMITAR SU ANCHO --}}
                 <div class="max-w-5xl mx-auto"> 
                     <div class="overflow-x-auto">
                         {{-- TABLA --}}
@@ -112,20 +108,17 @@
                             </tbody>
                         </table>
                     </div>
-                </div> {{-- CIERRE DEL NUEVO DIV --}}
+                </div> 
             @endif
         </div>
         
-        {{-- ========================================================== --}}
-        {{-- 2. HISTORIAL (Canceladas y Rechazadas) --}}
-        {{-- ========================================================== --}}
+        {{-- Historial de reservas (Rechazadas y Canceladas) --}}
         <div class="bg-white p-6 rounded shadow mb-8">
             <h3 class="text-xl font-semibold mb-4">Historial de reservas</h3>
 
             @if ($historialReservas->isEmpty())
                 <p class="text-gray-600">No hay reservas en el historial (Rechazadas o Canceladas).</p>
             @else
-                {{-- NUEVO DIV PARA CENTRAR LA TABLA Y LIMITAR SU ANCHO --}}
                 <div class="max-w-5xl mx-auto">
                     <div class="overflow-x-auto">
                         {{-- TABLA --}}
@@ -185,7 +178,7 @@
                                             {{ $res->espacios ?? 1 }}
                                         </td>
 
-                                        {{-- ESTADO: Usando valores numéricos --}}
+                                        {{-- Estados --}}
                                         <td class="p-2 whitespace-nowrap">
                                             @if ($res->estado == 3)
                                                 <span class="text-red-600 font-semibold">Rechazada</span>
@@ -194,7 +187,7 @@
                                             @endif
                                         </td>
                                         
-                                        {{-- ACCIONES --}}
+                                        {{-- Acciones --}}
                                         <td class="p-2">
                                             <span class="text-gray-400">Sin acciones</span>
                                         </td>
@@ -203,7 +196,7 @@
                             </tbody>
                         </table>
                     </div>
-                </div> {{-- CIERRE DEL NUEVO DIV --}}
+                </div>
             @endif
         </div>
 

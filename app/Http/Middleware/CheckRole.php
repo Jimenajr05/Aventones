@@ -6,28 +6,28 @@ use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
+// Middleware para verificar el rol del usuario antes de permitir el acceso a ciertas rutas
 class CheckRole
 {
+    // Metodo handle que intercepta la solicitud HTTP
     public function handle(Request $request, Closure $next, ...$roles)
     {
         $user = Auth::user();
 
-        // Si no está autenticado → login
+        // Si el usuario no está autenticado, redirigir al login
         if (!$user) {
             return redirect()->route('login');
         }
 
-        // CORRECCIÓN: Convertir el array de roles de strings a enteros.
-        // Esto garantiza que la comparación de in_array sea correcta.
+        // Convertir los roles permitidos a enteros
         $allowedRoles = array_map('intval', $roles);
 
-        // Si el rol del usuario NO está permitido en esta ruta
+        // Verificar si el rol del usuario está en la lista de roles permitidos
         if (!in_array($user->role_id, $allowedRoles)) {
-            // Se utiliza la variable corregida $allowedRoles
             abort(403, 'No tienes permiso para acceder a esta sección.'); 
         }
 
-        // Si sí tiene el rol permitido
+        // Si el rol es permitido, continuar con la solicitud
         return $next($request);
     }
 }

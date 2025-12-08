@@ -21,14 +21,11 @@
             </div>
         @endif
 
-        {{-- ========================================================== --}}
-        {{-- 1. SOLICITUDES RECIBIDAS (Solo Pendientes) --}}
-        {{-- ========================================================== --}}
+        {{-- Solicitudes (Solo Pendientes) --}}
         <div class="bg-white p-6 shadow rounded mb-8">
 
             <h3 class="text-xl font-bold mb-4">Solicitudes recibidas</h3>
 
-            {{-- Usamos la nueva variable: $solicitudesRecibidas --}}
             @if ($solicitudesRecibidas->isEmpty())
                 <p class="text-gray-600">No tienes solicitudes de reserva pendientes.</p>
             @else
@@ -118,15 +115,11 @@
 
         </div>
 
-
-        {{-- ========================================================== --}}
-        {{-- 2. HISTORIAL DE RESERVAS (Aceptadas, Rechazadas, Canceladas) --}}
-        {{-- ========================================================== --}}
+        {{-- Historial de Reservas --}}
         <div class="bg-white p-6 shadow rounded">
 
             <h3 class="text-xl font-bold mb-4">Historial de reservas</h3>
 
-            {{-- Usamos la nueva variable: $historialReservasChofer --}}
             @if ($historialReservasChofer->isEmpty())
                 <p class="text-gray-600">No hay reservas en el historial.</p>
             @else

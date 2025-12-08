@@ -21,10 +21,9 @@
             </div>
         @endif
 
-        {{-- TODO APILADO COMO EN EL DISEÑO --}}
         <div class="space-y-10">
 
-            {{-- 1. FORMULARIO PARA CREAR --}}
+            {{-- Formulario --}}
             <div class="bg-white rounded-2xl shadow-xl p-8">
 
                 <h3 class="text-2xl font-bold text-center mb-6">Crear nuevo ride</h3>
@@ -34,7 +33,7 @@
                     <form action="{{ route('rides.store') }}" method="POST" class="space-y-6" novalidate>
                         @csrf
 
-                        {{-- FILA 1: Nombre, Origen, Destino, Hora --}}
+                        {{-- Fila 1: Nombre, Origen, Destino, Hora --}}
                         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                             <div>
                                 <label class="font-semibold">Nombre del ride:</label>
@@ -61,7 +60,7 @@
                             </div>
                         </div>
 
-                        {{-- FILA 2: Fecha, Vehículo, Costo, Espacios --}}
+                        {{-- Fila 2: Fecha, Vehículo, Costo, Espacios --}}
                         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                             <div>
                                 <label class="font-semibold">Fecha:</label>
@@ -104,15 +103,15 @@
                             </div>
                         </div>
 
-                        {{-- 🗺️ MAPA AGREGADO AQUI --}}
+                        {{-- Mapa --}}
                         <div id="map-hint"
                              class="mt-2 mb-4 p-3 bg-blue-50 border-l-4 border-blue-500 text-blue-800 rounded text-center">
                             🗺️ Selecciona en el mapa primero el <b>origen</b> y luego el <b>destino</b>.
                         </div>
 
                         <div id="map" class="rounded-xl overflow-hidden border" style="height: 350px; z-index:1;"></div>
-                        {{-- FIN MAPA --}}
 
+                        {{-- Botón --}}
                         <div class="mt-4 flex justify-center">
                             <button type="submit"
                                 class="bg-indigo-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-indigo-700 transition duration-300 shadow">
@@ -124,7 +123,7 @@
                 </div>
             </div>
 
-            {{-- 2. Listado de Rides --}}
+            {{-- Listado de Rides --}}
             <div class="bg-white rounded-2xl shadow-xl p-8">
                 <h3 class="text-2xl font-bold text-center mb-6">
                     Mis Rides Publicados ({{ $rides->count() }})
@@ -144,7 +143,6 @@
                             $espaciosReservados = $activeReservas->sum('espacios_reservados');
                         @endphp
                         
-                        {{-- CONTENEDOR --}}
                         <div class="p-4 bg-white rounded-lg shadow border border-gray-100 flex items-start space-x-4">
                             
                             <div class="flex-shrink-0">
@@ -239,8 +237,7 @@
 
     </div>
 
-
-    {{-- MODAL --}}
+    {{-- Modal --}}
     <div id="editRideModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 items-center justify-center">
         
         <div class="bg-white p-6 rounded-lg w-full max-w-xl"> 
@@ -322,8 +319,6 @@
 
     </div>
 
-
-    {{-- ---------- SCRIPTS EXISTENTES ---------- --}}
     <script>
         function updateMaxSpaces(selectId, inputId, maxDisplayId) {
             const selectVehiculo = document.getElementById(selectId);
@@ -399,8 +394,6 @@
         }
     </script>
 
-
-    {{-- ---------- LEAFLET MAPA AGREGADO ---------- --}}
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
