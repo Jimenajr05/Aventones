@@ -147,4 +147,4 @@ Route::get('/dashboard', function () {
         default => abort(403),
     };
 
-})->middleware(['auth', 'verified', 'status']);
+})->middleware(['auth', 'verified', 'status'])->name('dashboard');

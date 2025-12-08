@@ -39,7 +39,7 @@ class RideCreationTest extends TestCase
             'fecha' => now()->addDays(7)->format('Y-m-d'), 
             'hora' => '10:00', 
             'costo_por_espacio' => 5000, 
-            'espacios' => $vehiculo->capacidad, 
+            'espacios' => $vehiculo->capacidad - 1, 
             'vehiculo_id' => $vehiculo->id, 
         ];
 
