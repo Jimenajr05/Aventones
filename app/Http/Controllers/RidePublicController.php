@@ -11,18 +11,21 @@ class RidePublicController extends Controller
     // Muestra la lista de viajes disponibles
     public function index(Request $request)
     {
-        $query = Ride::query();
+        // Ordenamiento
+        $orden = $request->input('orden', 'fecha');      // por defecto: fecha
+        $direccion = $request->input('direccion', 'asc'); // por defecto: asc
 
-        // Filtrar por origen y destino si se proporcionan en la solicitud
-        if ($request->filled('origen')) {
-            $query->where('origen', 'like', "%{$request->origen}%");
-        }
-
-        if ($request->filled('destino')) {
-            $query->where('destino', 'like', "%{$request->destino}%");
-        }
-
-        $rides = $query->get();
+        // Construir query con filtros
+        $rides = Ride::query()
+            ->when($request->filled('origen'), function ($q) use ($request) {
+                $q->where('origen', 'like', "%{$request->origen}%");
+            })
+            ->when($request->filled('destino'), function ($q) use ($request) {
+                $q->where('destino', 'like', "%{$request->destino}%");
+            })
+            ->orderBy($orden, $direccion) // Ordenar por el campo elegido
+            ->with(['vehiculo'])          // Cargar relación del vehículo
+            ->get();
 
         return view('public.index', compact('rides'));
     }

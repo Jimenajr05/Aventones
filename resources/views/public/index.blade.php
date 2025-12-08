@@ -23,6 +23,7 @@
 
             {{-- La acción del formulario es correcta para la vista pública --}}
             <form method="GET" action="{{ route('public.index') }}" class="form-busqueda">
+
                 <div class="campo">
                     <label>Origen:</label>
                     <input type="text" name="origen" value="{{ request('origen') }}" placeholder="Ej: San Carlos">
@@ -32,13 +33,35 @@
                     <label>Destino:</label>
                     <input type="text" name="destino" value="{{ request('destino') }}" placeholder="Ej: Alajuela">
                 </div>
-
-                <div class="acciones-form">
-                    <button class="btn">Buscar</button>
-                    <button type="button" class="btn btn-secundario"
-                            onclick="window.location.href='{{ route('public.index') }}'">Limpiar</button>
+                
+                <div class="campo">
+                    <label>Ordenar por:</label>
+                    <select name="orden" class="select">
+                        <option value="fecha"  {{ request('orden') == 'fecha' ? 'selected' : '' }}>Fecha</option>
+                        <option value="hora"   {{ request('orden') == 'hora' ? 'selected' : '' }}>Hora</option>
+                        <option value="origen" {{ request('orden') == 'origen' ? 'selected' : '' }}>Origen</option>
+                        <option value="destino" {{ request('orden') == 'destino' ? 'selected' : '' }}>Destino</option>
+                    </select>
                 </div>
+
+                <div class="campo">
+                    <label>Dirección:</label>
+                    <select name="direccion" class="select">
+                        <option value="asc"  {{ request('direccion') == 'asc' ? 'selected' : '' }}>Ascendente</option>
+                        <option value="desc" {{ request('direccion') == 'desc' ? 'selected' : '' }}>Descendente</option>
+                    </select>
+                </div>
+
+                <!-- Botón Buscar -->
+                <button class="btn btn-grid">Buscar</button>
+
+                <!-- Botón Limpiar -->
+                <button type="button" class="btn btn-secundario btn-grid"
+                        onclick="window.location.href='{{ route('public.index') }}'">
+                    Limpiar
+                </button>
             </form>
+
 
             <div id="map-hint">🗺️ Selecciona en el mapa <b>origen</b> y <b>destino</b> dentro de Alajuela.</div>
             <div id="map"></div>
@@ -69,10 +92,10 @@
                                     <td>{{ $ride->nombre }}</td>
                                     <td>{{ $ride->origen }}</td>
                                     <td>{{ $ride->destino }}</td>
-                                    <td>{{ $ride->fecha }}</td>
-                                    <td>{{ \Carbon\Carbon::parse($ride->hora)->format('h:i A') }}</td>
+                                    <td class="tabla-fecha">{{ $ride->fecha }}</td>
+                                    <td class="tabla-hora">{{ \Carbon\Carbon::parse($ride->hora)->format('h:i A') }}</td>
                                     {{-- Acceder a marca y modelo del objeto vehículo --}}
-                                    <td>{{ $ride->vehiculo->marca ?? 'N/A' }} {{ $ride->vehiculo->modelo ?? '' }}</td>
+                                    <td class="tabla-vehiculo">{{ $ride->vehiculo->marca ?? 'N/A' }} {{ $ride->vehiculo->modelo ?? '' }}</td>
                                     
                                     {{-- Usar el campo de costo correcto --}}
                                     <td>₡{{ number_format($ride->costo_por_espacio ?? 0, 2) }}</td>
