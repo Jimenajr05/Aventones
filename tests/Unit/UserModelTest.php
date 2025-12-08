@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\Test;
 
+// Test para el modelo de usuario
 class UserModelTest extends TestCase
 {
     use RefreshDatabase;

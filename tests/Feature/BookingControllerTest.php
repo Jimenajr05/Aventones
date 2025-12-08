@@ -9,6 +9,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use PHPUnit\Framework\Attributes\Test;
 
+// Test para el controlador de reservas
 class BookingControllerTest extends TestCase
 {
     use RefreshDatabase; 

@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
+// Test para las funcionalidades de autenticación de usuarios
 class AuthenticationTest extends TestCase
 {
     use RefreshDatabase;

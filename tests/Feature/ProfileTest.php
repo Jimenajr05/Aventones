@@ -7,6 +7,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use PHPUnit\Framework\Attributes\Test;
 
+// Test para las funcionalidades del perfil de usuario
 class ProfileTest extends TestCase
 {
     use RefreshDatabase;
@@ -31,16 +32,11 @@ class ProfileTest extends TestCase
         $response = $this
             ->actingAs($user)
             ->patch('/profile', [
-                // 🔑 CLAVE: Usar 'nombre' y 'apellido' y otros campos requeridos para la validación del controlador
                 'nombre' => 'Test', 
                 'apellido' => 'User',
                 'email' => 'test@example.com',
-                
-                // Asegurar que se envían los campos que no cambian (si son requeridos en el ProfileUpdateRequest)
                 'cedula' => $user->cedula,
-                'fecha_nacimiento' => $user->fecha_nacimiento,
-                
-                // Campo actualizado
+                'fecha_nacimiento' => '2000-01-01',
                 'telefono' => '88887777', 
             ]);
 
@@ -50,7 +46,6 @@ class ProfileTest extends TestCase
 
         $user->refresh();
 
-        // 🎯 Aserciones para verificar la actualización
         $this->assertSame('Test', $user->nombre);
         $this->assertSame('test@example.com', $user->email);
         $this->assertSame('88887777', $user->telefono); 

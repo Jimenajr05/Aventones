@@ -8,6 +8,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use PHPUnit\Framework\Attributes\Test;
 
+// Test para la creación de viajes por parte de conductores
 class RideCreationTest extends TestCase
 {
     use RefreshDatabase; 

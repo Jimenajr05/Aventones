@@ -8,6 +8,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
 use Tests\TestCase;
 
+// Test para la funcionalidad de restablecimiento de contraseña
 class PasswordResetTest extends TestCase
 {
     use RefreshDatabase;

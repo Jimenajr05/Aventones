@@ -7,6 +7,7 @@ use Tests\TestCase;
 use PHPUnit\Framework\Attributes\Test;
 use App\Models\User;
 
+// Test para las funcionalidades de registro de usuarios
 class RegistrationTest extends TestCase
 {
     use RefreshDatabase;

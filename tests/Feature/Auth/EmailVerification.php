@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\URL;
 use Tests\TestCase;
 
+// Test para la verificación de correo electrónico
 class EmailVerificationTest extends TestCase
 {
     use RefreshDatabase;

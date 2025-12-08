@@ -7,6 +7,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use PHPUnit\Framework\Attributes\Test;
 
+// Test para verificar la autorización de acceso al panel de administración
 class AdminAuthorizationTest extends TestCase
 {
     use RefreshDatabase;

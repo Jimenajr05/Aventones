@@ -5,6 +5,7 @@ namespace Tests\Unit;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\Test; 
 
+// Test para el servicio de gestión de viajes
 class RideServiceTest extends TestCase
 {
     #[Test]

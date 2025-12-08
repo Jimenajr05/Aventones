@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
+// Test para la confirmación de contraseña
 class PasswordConfirmationTest extends TestCase
 {
     use RefreshDatabase;
