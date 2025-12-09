@@ -32,14 +32,17 @@ class ProfileController extends Controller
 
         // Cambio de foto de perfil
         if ($request->hasFile('foto')) {
-            
+
             // Eliminar la foto anterior si existe
             if ($user->foto) {
-                Storage::disk('public')->delete($user->foto); 
+                Storage::disk('public')->delete($user->foto);
             }
-            
-            // Almacenar la nueva foto y actualizar el campo 'foto' del usuario
-            $user->foto = $request->file('foto')->store('avatars', 'public');
+
+            // Si role_id es 1 o 2 → admin, sino → usuario normal
+            $carpeta = in_array($user->role_id, [1, 2]) ? 'fotos_admins' : 'fotos_usuarios';
+
+            // Guardar la nueva foto en la carpeta correcta
+            $user->foto = $request->file('foto')->store($carpeta, 'public');
         }
 
         // Verificar si el email ha cambiado
