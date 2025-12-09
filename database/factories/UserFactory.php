@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
-// Importa el modelo User si es necesario
 class UserFactory extends Factory
 {
     protected static ?string $password = null;
@@ -17,18 +16,20 @@ class UserFactory extends Factory
             // Datos personales
             'nombre' => fake()->firstName(),
             'apellido' => fake()->lastName(),
-            'email' => fake()->unique()->safeEmail(),
+            'email' => fake()->unique()->userName() . '@gmail.com',
+            'email_verified_at' => now(),
+
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
 
-            // Datos personalizados de tu app
-            'cedula' => fake()->numerify('##########'),
-            'fecha_nacimiento' => fake()->date(),
-            'telefono' => fake()->numerify('########'),
+            // Campos personalizados de la app
+            'cedula' => fake()->unique()->numerify('##########'),
+            'fecha_nacimiento' => fake()->dateTimeBetween('-1200 years', '-13 years')->format('Y-m-d'),
+            'telefono' => fake()->unique()->numerify('########'),
 
             // Valores por defecto
-            'role_id' => 4,             // Pasajero
-            'status_id' => 2,           // Activo
+            'role_id' => 4,   // Pasajero
+            'status_id' => 2, // Activo
             'foto' => null,
             'activation_token' => null,
             'is_super_admin' => false,

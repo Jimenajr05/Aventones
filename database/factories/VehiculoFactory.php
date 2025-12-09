@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 use App\Models\Vehiculo; 
 use App\Models\User;
 
-// Importa el modelo Vehiculo si es necesario
 class VehiculoFactory extends Factory
 {
     protected $model = Vehiculo::class;
@@ -14,15 +13,23 @@ class VehiculoFactory extends Factory
     public function definition(): array
     {
         return [
-            // Crea automáticamente un chofer usando la factory
+            // Asigna chofer automáticamente
             'user_id' => User::factory()->driver(),
 
-            'marca' => fake()->randomElement(['Toyota', 'Nissan', 'Hyundai']),
-            'modelo' => fake()->word(),
+            'marca' => fake()->randomElement(['Toyota', 'Nissan', 'Hyundai', 'Kia', 'Honda']),
+            'modelo' => fake()->randomElement(['Corolla', 'Yaris', 'Elantra', 'Civic', 'Sentra']),
+            
             'placa' => fake()->unique()->bothify('???###'),
-            'color' => fake()->colorName(),
-            'anio' => fake()->year(),
-            'capacidad' => fake()->numberBetween(2, 6),
+
+            'color' => fake()->safeColorName(),
+
+            // Año realista y nunca futuro
+            'anio' => fake()->numberBetween(1990, now()->year),
+
+            // Capacidad mínima 2 (chofer + pasajero)
+            'capacidad' => fake()->numberBetween(2, 7),
+
+            // No generar fotos en tests
             'fotografia' => null,
         ];
     }
