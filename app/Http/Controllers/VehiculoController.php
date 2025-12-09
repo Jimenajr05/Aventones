@@ -128,7 +128,7 @@ class VehiculoController extends Controller
             // Si hay rides, la capacidad debe ser al menos maxEspaciosRide + 1
             if ($request->capacidad < ($maxEspaciosRide + 1)) {
                 return back()->withErrors([
-                    'capacidad' => "⚠️ No puedes establecer la capacidad en {$request->capacidad}, 
+                    'capacidad' => "No puedes establecer la capacidad en {$request->capacidad}, 
                     porque tienes rides con {$maxEspaciosRide} espacios para pasajeros y se necesita al menos " .
                                 ($maxEspaciosRide + 1) . " asientos totales para permitirlo."
                 ]);
