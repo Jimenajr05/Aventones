@@ -35,13 +35,17 @@ class ReservaController extends Controller
             return back()->withErrors('Ya tienes una reserva activa o pendiente para este ride.');
         }
 
-        // Validar que el pasajero NO tenga otra reserva activa/pendiente en NINGÚN ride
-        $otraReserva = Reserva::where('pasajero_id', auth()->id())
+        // Validar que el pasajero NO tenga otra reserva a la misma fecha y hora
+        $conflicto = Reserva::where('pasajero_id', auth()->id())
             ->whereIn('estado', [1, 2]) // Pendiente o Aceptada
+            ->whereHas('ride', function ($query) use ($ride) {
+                $query->where('fecha', $ride->fecha)
+                    ->where('hora', $ride->hora);
+            })
             ->exists();
 
-        if ($otraReserva) {
-            return back()->withErrors('Ya tienes una reserva activa o pendiente en otro ride. No puedes reservar más de un ride a la vez.');
+        if ($conflicto) {
+            return back()->withErrors('No puedes reservar dos rides en la misma fecha y hora.');
         }
 
         // Crear la reserva
